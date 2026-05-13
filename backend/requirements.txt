@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+pydantic
+sqlalchemy
+chromadb
+ollama
+pymupdf
+python-docx
+python-multipart
+watchdog

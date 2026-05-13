@@ -16,7 +16,7 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 @router.post("/ask", response_model=AskResponse)
 def ask(payload: AskRequest, db: Session = Depends(get_db)) -> dict:
     try:
-        response = ask_question(payload.question, payload.labels)
+        response = ask_question(payload.question, payload.labels, payload.llm_model)
     except OllamaModelError as exc:
         raise HTTPException(
             status_code=503,

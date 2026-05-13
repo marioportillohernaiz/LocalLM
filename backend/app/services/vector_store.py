@@ -17,8 +17,9 @@ def add_chunk(
     file_name: str,
     file_path: str,
     chunk_index: int,
+    embedding_model: str | None = None,
 ) -> None:
-    embedding = embed_text(text)
+    embedding = embed_text(text, model=embedding_model)
 
     collection.add(
         ids=[chunk_id],

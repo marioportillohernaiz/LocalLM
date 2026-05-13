@@ -10,7 +10,11 @@ client = TestClient(app)
 
 
 def test_ask_returns_service_unavailable_for_missing_ollama_model(monkeypatch):
-    def raise_missing_model(question: str, labels: list[str]) -> dict:
+    def raise_missing_model(
+        question: str,
+        labels: list[str],
+        llm_model: str | None = None,
+    ) -> dict:
         raise OllamaModelError(
             "qwen2.5:1.5b",
             "chat",
@@ -32,7 +36,11 @@ def test_ask_returns_service_unavailable_for_missing_ollama_model(monkeypatch):
 
 
 def test_ask_returns_installed_embedding_model_hint(monkeypatch):
-    def raise_missing_model(question: str, labels: list[str]) -> dict:
+    def raise_missing_model(
+        question: str,
+        labels: list[str],
+        llm_model: str | None = None,
+    ) -> dict:
         raise OllamaModelError(
             "qwen3-embedding:0.6b",
             "embedding",

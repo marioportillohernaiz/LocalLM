@@ -17,6 +17,7 @@ class _HistoryPageState extends State<HistoryPage> {
   List<ChatHistoryItem> items = [];
   ChatHistoryItem? selectedItem;
   bool loading = false;
+  final deletingItemIds = <int>{};
   String? errorMessage;
 
   @override
@@ -59,75 +60,182 @@ class _HistoryPageState extends State<HistoryPage> {
     }
   }
 
+  Future<void> deleteHistoryItem(ChatHistoryItem item) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete conversation?'),
+          content: Text(
+            'This will permanently delete "${_previewQuestion(item.question)}".',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error,
+                foregroundColor: Theme.of(context).colorScheme.onError,
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) {
+      return;
+    }
+
+    setState(() {
+      deletingItemIds.add(item.id);
+      errorMessage = null;
+    });
+
+    try {
+      await widget.apiClient.deleteHistoryItem(item.id);
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        items = items.where((nextItem) => nextItem.id != item.id).toList();
+        if (selectedItem?.id == item.id) {
+          selectedItem = null;
+        }
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        errorMessage = error.toString();
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          deletingItemIds.remove(item.id);
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Container(
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _HistoryHeader(
+              loading: loading,
+              onRefresh: loadHistory,
+            ),
+            if (errorMessage != null) ...[
+              const SizedBox(height: 16),
+              _ErrorBanner(message: errorMessage!),
+            ],
+            const SizedBox(height: 18),
+            Expanded(
+              child: loading && items.isEmpty
+                  ? const Center(child: CircularProgressIndicator())
+                  : items.isEmpty
+                      ? const _EmptyHistory()
+                      : Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 360,
+                              child: ListView.separated(
+                                itemCount: items.length,
+                                separatorBuilder: (_, __) =>
+                                    const SizedBox(height: 10),
+                                itemBuilder: (context, index) {
+                                  final item = items[index];
+                                  final selected = selectedItem?.id == item.id;
+                                  return _HistoryCard(
+                                    item: item,
+                                    selected: selected,
+                                    deleting: deletingItemIds.contains(item.id),
+                                    onTap: () {
+                                      setState(() {
+                                        selectedItem = item;
+                                      });
+                                    },
+                                    onDelete: () => deleteHistoryItem(item),
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 28),
+                            Expanded(
+                              child: Center(
+                                child: ConstrainedBox(
+                                  constraints:
+                                      const BoxConstraints(maxWidth: 900),
+                                  child: selectedItem == null
+                                      ? const _SelectHistoryItem()
+                                      : ChatAnswerView(
+                                          response:
+                                              selectedItem!.toChatResponse(),
+                                        ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HistoryHeader extends StatelessWidget {
+  const _HistoryHeader({
+    required this.loading,
+    required this.onRefresh,
+  });
+
+  final bool loading;
+  final VoidCallback onRefresh;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Expanded(
-                child: Text(
-                  'History',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
+              Text(
+                'History',
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0,
                 ),
               ),
-              IconButton(
-                tooltip: 'Refresh history',
-                onPressed: loading ? null : loadHistory,
-                icon: const Icon(Icons.refresh),
+              SizedBox(height: 4),
+              Text(
+                'Return to previous local-file conversations.',
+                style: TextStyle(color: Color(0xFF6B7280)),
               ),
             ],
           ),
-          if (errorMessage != null) ...[
-            const SizedBox(height: 16),
-            _ErrorBanner(message: errorMessage!),
-          ],
-          const SizedBox(height: 16),
-          Expanded(
-            child: loading && items.isEmpty
-                ? const Center(child: CircularProgressIndicator())
-                : items.isEmpty
-                    ? const _EmptyHistory()
-                    : Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: 360,
-                            child: ListView.separated(
-                              itemCount: items.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(height: 8),
-                              itemBuilder: (context, index) {
-                                final item = items[index];
-                                final selected = selectedItem?.id == item.id;
-                                return _HistoryCard(
-                                  item: item,
-                                  selected: selected,
-                                  onTap: () {
-                                    setState(() {
-                                      selectedItem = item;
-                                    });
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                          const VerticalDivider(width: 32),
-                          Expanded(
-                            child: selectedItem == null
-                                ? const _SelectHistoryItem()
-                                : ChatAnswerView(
-                                    response: selectedItem!.toChatResponse(),
-                                  ),
-                          ),
-                        ],
-                      ),
-          ),
-        ],
-      ),
+        ),
+        IconButton(
+          tooltip: 'Refresh history',
+          onPressed: loading ? null : onRefresh,
+          icon: const Icon(Icons.refresh),
+        ),
+      ],
     );
   }
 }
@@ -136,36 +244,115 @@ class _HistoryCard extends StatelessWidget {
   const _HistoryCard({
     required this.item,
     required this.selected,
+    required this.deleting,
     required this.onTap,
+    required this.onDelete,
   });
 
   final ChatHistoryItem item;
   final bool selected;
+  final bool deleting;
   final VoidCallback onTap;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Card(
-      elevation: 0,
-      color: selected ? colorScheme.secondaryContainer : null,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-        side: BorderSide(color: colorScheme.outlineVariant),
-      ),
-      child: ListTile(
+    return Material(
+      color: selected ? const Color(0xFFECECF1) : const Color(0xFFF9FAFB),
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
         onTap: onTap,
-        title: Text(
-          item.question,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        subtitle: Text(
-          '${_formatTimestamp(item.createdAt)}'
-          '${item.labels.isEmpty ? '' : '\n${item.labels.join(', ')}'}',
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color:
+                  selected ? const Color(0xFFD1D5DB) : const Color(0xFFE5E7EB),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        item.question,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: IconButton(
+                        tooltip: 'Delete conversation',
+                        padding: EdgeInsets.zero,
+                        onPressed: deleting ? null : onDelete,
+                        icon: deleting
+                            ? const SizedBox(
+                                width: 15,
+                                height: 15,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.delete_outline, size: 18),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    if (item.labels.isNotEmpty) ...[
+                      Expanded(
+                        child: Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            for (final label in item.labels)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 9,
+                                  vertical: 5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(999),
+                                  border: Border.all(
+                                    color: const Color(0xFFE5E7EB),
+                                  ),
+                                ),
+                                child: Text(
+                                  label,
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    Text(
+                      _formatTimestamp(item.createdAt),
+                      style: const TextStyle(
+                        color: Color(0xFF6B7280),
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -178,9 +365,29 @@ class _SelectHistoryItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text(
-        'Select a question',
-        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 54,
+            height: 54,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF3F4F6),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(Icons.history_outlined),
+          ),
+          const SizedBox(height: 14),
+          const Text(
+            'Select a conversation',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Choose a saved question to review its answer and sources.',
+            style: TextStyle(color: Color(0xFF6B7280)),
+          ),
+        ],
       ),
     );
   }
@@ -192,9 +399,29 @@ class _EmptyHistory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text(
-        'No chat history',
-        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 54,
+            height: 54,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF3F4F6),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(Icons.chat_bubble_outline),
+          ),
+          const SizedBox(height: 14),
+          const Text(
+            'No chat history',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Ask a question to save your first conversation.',
+            style: TextStyle(color: Color(0xFF6B7280)),
+          ),
+        ],
       ),
     );
   }
@@ -209,10 +436,10 @@ class _ErrorBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.errorContainer,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Text(
         message,
@@ -230,4 +457,12 @@ String _formatTimestamp(DateTime value) {
   final hour = local.hour.toString().padLeft(2, '0');
   final minute = local.minute.toString().padLeft(2, '0');
   return '$year-$month-$day $hour:$minute';
+}
+
+String _previewQuestion(String question) {
+  const maxLength = 80;
+  if (question.length <= maxLength) {
+    return question;
+  }
+  return '${question.substring(0, maxLength)}...';
 }

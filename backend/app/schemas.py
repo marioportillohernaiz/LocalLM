@@ -28,9 +28,14 @@ class IndexSourceResponse(BaseModel):
     total: int
 
 
+class IndexSourceRequest(BaseModel):
+    embedding_model: str | None = None
+
+
 class AskRequest(BaseModel):
     question: str = Field(min_length=1)
     labels: list[str] = Field(default_factory=list)
+    llm_model: str | None = None
 
 
 class SourceCitation(BaseModel):
@@ -52,3 +57,28 @@ class ChatHistoryResponse(BaseModel):
     labels: list[str]
     sources: list[SourceCitation]
     created_at: datetime
+
+
+class ModelListResponse(BaseModel):
+    models: list[str]
+    chat_models: list[str] = Field(default_factory=list)
+    embedding_models: list[str] = Field(default_factory=list)
+
+
+class ModelCatalogItem(BaseModel):
+    name: str
+    display_name: str
+    kind: str
+    size_label: str
+    approximate_size: str
+    description: str
+    installed: bool
+
+
+class PullModelRequest(BaseModel):
+    model: str = Field(min_length=1)
+
+
+class PullModelResponse(BaseModel):
+    model: str
+    installed: bool

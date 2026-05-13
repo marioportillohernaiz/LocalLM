@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/source.dart';
 import '../../services/api_client.dart';
+import '../../widgets/model_dropdown.dart';
 
 class SourcesPage extends StatefulWidget {
   const SourcesPage({super.key, required this.apiClient});
@@ -17,7 +18,10 @@ class _SourcesPageState extends State<SourcesPage> {
   final labelController = TextEditingController();
   final indexingSourceIds = <int>{};
   List<Source> sources = [];
+  List<String> models = [];
+  String? selectedEmbeddingModel;
   bool loading = false;
+  bool loadingModels = false;
   String? activeIndexingLabel;
   String? errorMessage;
 
@@ -25,6 +29,7 @@ class _SourcesPageState extends State<SourcesPage> {
   void initState() {
     super.initState();
     loadSources();
+    loadModels();
   }
 
   @override
@@ -58,6 +63,41 @@ class _SourcesPageState extends State<SourcesPage> {
       if (mounted) {
         setState(() {
           loading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> loadModels() async {
+    setState(() {
+      loadingModels = true;
+    });
+
+    try {
+      final nextModels = await widget.apiClient.getEmbeddingModels();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        models = nextModels;
+        if (selectedEmbeddingModel != null &&
+            !nextModels.contains(selectedEmbeddingModel)) {
+          selectedEmbeddingModel = null;
+        }
+        selectedEmbeddingModel ??= nextModels.isEmpty ? null : nextModels.first;
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        models = [];
+        selectedEmbeddingModel = null;
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          loadingModels = false;
         });
       }
     }
@@ -105,7 +145,10 @@ class _SourcesPageState extends State<SourcesPage> {
           activeIndexingLabel = source.label;
         });
       }
-      final result = await widget.apiClient.indexSource(source.id);
+      final result = await widget.apiClient.indexSource(
+        source.id,
+        embeddingModel: selectedEmbeddingModel,
+      );
       await loadSources();
       labelController.clear();
       if (mounted) {
@@ -138,7 +181,10 @@ class _SourcesPageState extends State<SourcesPage> {
     });
 
     try {
-      final result = await widget.apiClient.indexSource(source.id);
+      final result = await widget.apiClient.indexSource(
+        source.id,
+        embeddingModel: selectedEmbeddingModel,
+      );
       await loadSources();
       if (mounted) {
         ScaffoldMessenger.of(
@@ -166,86 +212,205 @@ class _SourcesPageState extends State<SourcesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Sources',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
+    return Container(
+      color: Colors.white,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1120),
+          child: Padding(
+            padding: const EdgeInsets.all(28),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _PageHeader(
+                  title: 'Sources',
+                  subtitle: 'Connect local folders and files for retrieval.',
+                  loading: loading,
+                  onRefresh: loadSources,
                 ),
-              ),
-              IconButton(
-                tooltip: 'Refresh',
-                onPressed: loading ? null : loadSources,
-                icon: const Icon(Icons.refresh),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              SizedBox(
-                width: 280,
-                child: TextField(
+                const SizedBox(height: 22),
+                _AddSourcePanel(
                   controller: labelController,
-                  decoration: const InputDecoration(
-                    labelText: 'Label',
-                    border: OutlineInputBorder(),
-                  ),
-                  onSubmitted: (_) => addFolder(),
+                  loading: loading,
+                  onAddFolder: addFolder,
+                  onAddFile: addFile,
+                  models: models,
+                  selectedModel: selectedEmbeddingModel,
+                  loadingModels: loadingModels,
+                  onModelChanged: (model) {
+                    setState(() {
+                      selectedEmbeddingModel = model;
+                    });
+                  },
+                ),
+                if (errorMessage != null) ...[
+                  const SizedBox(height: 16),
+                  _ErrorBanner(message: errorMessage!),
+                ],
+                if (activeIndexingLabel != null) ...[
+                  const SizedBox(height: 16),
+                  _IndexingBanner(label: activeIndexingLabel!),
+                ],
+                const SizedBox(height: 22),
+                Expanded(
+                  child: loading && sources.isEmpty
+                      ? const Center(child: CircularProgressIndicator())
+                      : sources.isEmpty
+                          ? const _EmptySources()
+                          : ListView.separated(
+                              itemCount: sources.length,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(height: 10),
+                              itemBuilder: (context, index) {
+                                final source = sources[index];
+                                final indexing =
+                                    indexingSourceIds.contains(source.id);
+                                return _SourceCard(
+                                  source: source,
+                                  indexing: indexing,
+                                  onReindex:
+                                      indexing ? null : () => reindex(source),
+                                );
+                              },
+                            ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PageHeader extends StatelessWidget {
+  const _PageHeader({
+    required this.title,
+    required this.subtitle,
+    required this.loading,
+    required this.onRefresh,
+  });
+
+  final String title;
+  final String subtitle;
+  final bool loading;
+  final VoidCallback onRefresh;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0,
                 ),
               ),
-              FilledButton.icon(
-                onPressed: loading ? null : addFolder,
-                icon: const Icon(Icons.create_new_folder_outlined),
-                label: const Text('Folder'),
-              ),
-              OutlinedButton.icon(
-                onPressed: loading ? null : addFile,
-                icon: const Icon(Icons.note_add_outlined),
-                label: const Text('File'),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: const TextStyle(color: Color(0xFF6B7280)),
               ),
             ],
           ),
-          if (errorMessage != null) ...[
-            const SizedBox(height: 16),
-            _ErrorBanner(message: errorMessage!),
-          ],
-          if (activeIndexingLabel != null) ...[
-            const SizedBox(height: 16),
-            _IndexingBanner(label: activeIndexingLabel!),
-          ],
-          const SizedBox(height: 20),
-          Expanded(
-            child: loading && sources.isEmpty
-                ? const Center(child: CircularProgressIndicator())
-                : sources.isEmpty
-                    ? const _EmptySources()
-                    : ListView.separated(
-                        itemCount: sources.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 8),
-                        itemBuilder: (context, index) {
-                          final source = sources[index];
-                          final indexing =
-                              indexingSourceIds.contains(source.id);
-                          return _SourceCard(
-                            source: source,
-                            indexing: indexing,
-                            onReindex: indexing ? null : () => reindex(source),
-                          );
-                        },
+        ),
+        IconButton(
+          tooltip: 'Refresh',
+          onPressed: loading ? null : onRefresh,
+          icon: const Icon(Icons.refresh),
+        ),
+      ],
+    );
+  }
+}
+
+class _AddSourcePanel extends StatelessWidget {
+  const _AddSourcePanel({
+    required this.controller,
+    required this.loading,
+    required this.onAddFolder,
+    required this.onAddFile,
+    required this.models,
+    required this.selectedModel,
+    required this.loadingModels,
+    required this.onModelChanged,
+  });
+
+  final TextEditingController controller;
+  final bool loading;
+  final VoidCallback onAddFolder;
+  final VoidCallback onAddFile;
+  final List<String> models;
+  final String? selectedModel;
+  final bool loadingModels;
+  final ValueChanged<String?> onModelChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Flexible(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: const Color(0xFFF9FAFB),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: const Color(0xFFE5E7EB)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 320,
+                    child: TextField(
+                      controller: controller,
+                      decoration: const InputDecoration(
+                        labelText: 'Source label',
+                        hintText: 'Research, notes, project docs',
                       ),
+                      onSubmitted: (_) => onAddFolder(),
+                    ),
+                  ),
+                  FilledButton.icon(
+                    onPressed: loading ? null : onAddFolder,
+                    icon: const Icon(Icons.create_new_folder_outlined),
+                    label: const Text('Add folder'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: loading ? null : onAddFile,
+                    icon: const Icon(Icons.note_add_outlined),
+                    label: const Text('Add file'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF111827),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 12),
+        ModelDropdown(
+          models: models,
+          selectedModel: selectedModel,
+          loading: loadingModels,
+          tooltip: 'Embedding model',
+          maxWidth: 240,
+          onChanged: onModelChanged,
+        ),
+      ],
     );
   }
 }
@@ -268,18 +433,28 @@ class _SourceCard extends StatelessWidget {
         : 'Indexed ${_formatTimestamp(source.lastIndexedAt!)}';
 
     return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-      ),
       child: ListTile(
-        leading: const Icon(Icons.folder_open_outlined),
-        title: Text(source.label, maxLines: 1, overflow: TextOverflow.ellipsis),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+        leading: Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: const Color(0xFFF3F4F6),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(Icons.folder_open_outlined),
+        ),
+        title: Text(
+          source.label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontWeight: FontWeight.w800),
+        ),
         subtitle: Text(
           '${source.path}\n$lastIndexed',
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
+          style: const TextStyle(color: Color(0xFF6B7280), height: 1.35),
         ),
         trailing: IconButton.filledTonal(
           tooltip: 'Re-index',
@@ -306,10 +481,10 @@ class _ErrorBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.errorContainer,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Text(
         message,
@@ -326,14 +501,12 @@ class _IndexingBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: colorScheme.secondaryContainer,
-        borderRadius: BorderRadius.circular(8),
+        color: const Color(0xFFE7F7F1),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         children: [
@@ -346,7 +519,7 @@ class _IndexingBanner extends StatelessWidget {
           Expanded(
             child: Text(
               'Indexing $label. Large PDFs can take several minutes.',
-              style: TextStyle(color: colorScheme.onSecondaryContainer),
+              style: const TextStyle(color: Color(0xFF065F46)),
             ),
           ),
         ],
@@ -361,9 +534,29 @@ class _EmptySources extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text(
-        'No sources',
-        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 54,
+            height: 54,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF3F4F6),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(Icons.folder_open_outlined),
+          ),
+          const SizedBox(height: 14),
+          const Text(
+            'No sources yet',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Add a labelled folder or file to start indexing.',
+            style: TextStyle(color: Color(0xFF6B7280)),
+          ),
+        ],
       ),
     );
   }

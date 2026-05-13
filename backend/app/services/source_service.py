@@ -37,7 +37,11 @@ def create_source(db: Session, label: str, path: str) -> Source:
     return source
 
 
-def index_source(db: Session, source_id: int) -> dict[str, int]:
+def index_source(
+    db: Session,
+    source_id: int,
+    embedding_model: str | None = None,
+) -> dict[str, int]:
     source = db.query(Source).filter(Source.id == source_id).first()
 
     if source is None:
@@ -62,7 +66,7 @@ def index_source(db: Session, source_id: int) -> dict[str, int]:
             .first()
         )
 
-        if existing_indexed:
+        if existing_indexed and not _clean_model_name(embedding_model):
             skipped_count += 1
             continue
 
@@ -98,6 +102,7 @@ def index_source(db: Session, source_id: int) -> dict[str, int]:
                         file_name=file_path.name,
                         file_path=file_path_text,
                         chunk_index=chunk_index,
+                        embedding_model=embedding_model,
                     )
 
                 document.status = "indexed"
@@ -138,3 +143,10 @@ def _delete_previous_documents(db: Session, source_id: int, file_path: str) -> N
 
     if previous_documents:
         db.commit()
+
+
+def _clean_model_name(model: str | None) -> str | None:
+    if model is None:
+        return None
+    cleaned = model.strip()
+    return cleaned or None

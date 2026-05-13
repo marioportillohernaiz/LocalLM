@@ -3,7 +3,12 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import Source
-from app.schemas import CreateSourceRequest, IndexSourceResponse, SourceResponse
+from app.schemas import (
+    CreateSourceRequest,
+    IndexSourceRequest,
+    IndexSourceResponse,
+    SourceResponse,
+)
 from app.services.source_service import create_source, index_source
 
 
@@ -27,9 +32,14 @@ def add_source(
 
 
 @router.post("/{source_id}/index", response_model=IndexSourceResponse)
-def index_source_route(source_id: int, db: Session = Depends(get_db)) -> dict[str, int]:
+def index_source_route(
+    source_id: int,
+    payload: IndexSourceRequest | None = None,
+    db: Session = Depends(get_db),
+) -> dict[str, int]:
     try:
-        return index_source(db, source_id)
+        embedding_model = payload.embedding_model if payload is not None else None
+        return index_source(db, source_id, embedding_model=embedding_model)
     except ValueError as error:
         status_code = 404 if "not found" in str(error).lower() else 400
         raise HTTPException(status_code=status_code, detail=str(error)) from error

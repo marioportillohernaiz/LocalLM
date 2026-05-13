@@ -1,6 +1,6 @@
 import json
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -26,6 +26,20 @@ def list_history(db: Session = Depends(get_db)) -> list[ChatHistoryResponse]:
         )
         for row in rows
     ]
+
+
+@router.delete("/{history_id}", status_code=204)
+def delete_history_item(
+    history_id: int,
+    db: Session = Depends(get_db),
+) -> Response:
+    row = db.query(ChatHistory).filter(ChatHistory.id == history_id).first()
+    if row is None:
+        raise HTTPException(status_code=404, detail="History item not found")
+
+    db.delete(row)
+    db.commit()
+    return Response(status_code=204)
 
 
 def _load_labels(value: str) -> list[str]:

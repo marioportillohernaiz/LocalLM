@@ -3,7 +3,11 @@ from app.services.ollama_service import generate_answer
 from app.services.vector_store import search_chunks
 
 
-def ask_question(question: str, labels: list[str]) -> dict:
+def ask_question(
+    question: str,
+    labels: list[str],
+    llm_model: str | None = None,
+) -> dict:
     cleaned_question = question.strip()
     cleaned_labels = [label.strip() for label in labels if label.strip()]
     chunks = search_chunks(cleaned_question, cleaned_labels)
@@ -52,7 +56,7 @@ Question:
 {cleaned_question}
 """.strip()
 
-    answer = generate_answer(prompt)
+    answer = generate_answer(prompt, model=llm_model)
 
     return {
         "question": cleaned_question,

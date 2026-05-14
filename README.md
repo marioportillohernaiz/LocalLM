@@ -19,6 +19,7 @@
 <p align="center">
   <a href="#screenshots">Screenshots</a> |
   <a href="#features">Features</a> |
+  <a href="#install-instructions">Install Instructions</a> |
   <a href="#quick-start">Quick Start</a> |
   <a href="#configuration">Configuration</a> |
   <a href="#api">API</a>
@@ -27,6 +28,16 @@
 ---
 
 LocalLM indexes labelled local files, retrieves the most relevant chunks, and generates answers with local Ollama models. Your documents stay on your machine: the desktop app talks to a local FastAPI backend, which stores metadata in SQLite and embeddings in ChromaDB.
+
+## Install Instructions
+
+Open PowerShell and run:
+
+```powershell
+irm https://raw.githubusercontent.com/marioportillohernaiz/LocalLM/main/install.ps1 | iex
+```
+
+This installs the LocalLM Windows app and local backend. Models are not included in the app download; open LocalLM, go to Settings, and download the chat and embedding models you want to use.
 
 ## Screenshots
 
@@ -75,17 +86,20 @@ The desktop app handles source selection, labels, questions, and display. The Py
 
 ### Requirements
 
+- Ollama installed and running: https://ollama.com/download
+- Windows 10 or newer.
+
+Install models from the LocalLM Settings screen after launching the app.
+
+### Run From Source
+
+These steps are only needed if you want to run the development version from this repository.
+
+Requirements:
+
 - Windows with Flutter desktop support enabled.
 - Python 3.11 or newer.
 - Ollama installed and running.
-- An Ollama chat model and embedding model.
-
-Pull the default models:
-
-```powershell
-ollama pull qwen2.5:1.5b
-ollama pull qwen3-embedding:0.6b
-```
 
 ### Run The Backend
 
@@ -118,8 +132,6 @@ cd app\flutter_windows_app
 flutter pub get
 flutter run -d windows
 ```
-
-The app defaults to `http://127.0.0.1:8000`. Use the Settings screen if your backend is running at a different URL.
 
 ## Configuration
 

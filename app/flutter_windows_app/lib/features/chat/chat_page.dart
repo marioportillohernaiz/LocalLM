@@ -110,7 +110,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> ask() async {
     final question = questionController.text.trim();
-    if (question.isEmpty) {
+    if (question.isEmpty || models.isEmpty) {
       return;
     }
 
@@ -195,6 +195,7 @@ class _ChatPageState extends State<ChatPage> {
                   child: _Composer(
                     controller: questionController,
                     asking: asking,
+                    hasModels: models.isNotEmpty,
                     onAsk: ask,
                   ),
                 ),
@@ -323,11 +324,13 @@ class _Composer extends StatelessWidget {
   const _Composer({
     required this.controller,
     required this.asking,
+    required this.hasModels,
     required this.onAsk,
   });
 
   final TextEditingController controller;
   final bool asking;
+  final bool hasModels;
   final VoidCallback onAsk;
 
   @override
@@ -363,15 +366,23 @@ class _Composer extends StatelessWidget {
                   filled: false,
                   contentPadding: EdgeInsets.symmetric(vertical: 12),
                 ),
-                onSubmitted: (_) => onAsk(),
+                onSubmitted: (_) {
+                  if (hasModels && !asking) {
+                    onAsk();
+                  }
+                },
               ),
             ),
             SizedBox(
               width: 42,
               height: 42,
               child: IconButton.filled(
-                tooltip: asking ? 'Asking' : 'Send',
-                onPressed: asking ? null : onAsk,
+                tooltip: !hasModels
+                    ? 'Install an answer model first'
+                    : asking
+                        ? 'Asking'
+                        : 'Send',
+                onPressed: asking || !hasModels ? null : onAsk,
                 style: IconButton.styleFrom(
                   backgroundColor: const Color(0xFF10A37F),
                   foregroundColor: Colors.white,

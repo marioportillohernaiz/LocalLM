@@ -6,6 +6,9 @@ backend/app/__pycache__/
 backend/app/routes/__pycache__/
 backend/app/services/__pycache__/
 backend/tests/__pycache__/
+backend/build/
+backend/dist/
+backend/*.spec
 
 app/flutter_windows_app/.dart_tool/
 app/flutter_windows_app/.flutter-plugins
@@ -13,6 +16,8 @@ app/flutter_windows_app/.flutter-plugins-dependencies
 app/flutter_windows_app/.packages
 app/flutter_windows_app/build/
 app/flutter_windows_app/windows/flutter/ephemeral/
+
+dist/
 
 *.pyc
 *.pyo

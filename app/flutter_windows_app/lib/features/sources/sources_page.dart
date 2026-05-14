@@ -104,6 +104,10 @@ class _SourcesPageState extends State<SourcesPage> {
   }
 
   Future<void> addFolder() async {
+    if (models.isEmpty) {
+      return;
+    }
+
     final path = await FilePicker.platform.getDirectoryPath();
     if (path == null) {
       return;
@@ -112,6 +116,10 @@ class _SourcesPageState extends State<SourcesPage> {
   }
 
   Future<void> addFile() async {
+    if (models.isEmpty) {
+      return;
+    }
+
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: const ['txt', 'md', 'pdf', 'docx'],
@@ -237,6 +245,7 @@ class _SourcesPageState extends State<SourcesPage> {
                   models: models,
                   selectedModel: selectedEmbeddingModel,
                   loadingModels: loadingModels,
+                  hasModels: models.isNotEmpty,
                   onModelChanged: (model) {
                     setState(() {
                       selectedEmbeddingModel = model;
@@ -339,6 +348,7 @@ class _AddSourcePanel extends StatelessWidget {
     required this.models,
     required this.selectedModel,
     required this.loadingModels,
+    required this.hasModels,
     required this.onModelChanged,
   });
 
@@ -349,6 +359,7 @@ class _AddSourcePanel extends StatelessWidget {
   final List<String> models;
   final String? selectedModel;
   final bool loadingModels;
+  final bool hasModels;
   final ValueChanged<String?> onModelChanged;
 
   @override
@@ -377,16 +388,20 @@ class _AddSourcePanel extends StatelessWidget {
                         labelText: 'Source label',
                         hintText: 'Research, notes, project docs',
                       ),
-                      onSubmitted: (_) => onAddFolder(),
+                      onSubmitted: (_) {
+                        if (hasModels && !loading) {
+                          onAddFolder();
+                        }
+                      },
                     ),
                   ),
                   FilledButton.icon(
-                    onPressed: loading ? null : onAddFolder,
+                    onPressed: loading || !hasModels ? null : onAddFolder,
                     icon: const Icon(Icons.create_new_folder_outlined),
                     label: const Text('Add folder'),
                   ),
                   OutlinedButton.icon(
-                    onPressed: loading ? null : onAddFile,
+                    onPressed: loading || !hasModels ? null : onAddFile,
                     icon: const Icon(Icons.note_add_outlined),
                     label: const Text('Add file'),
                     style: OutlinedButton.styleFrom(

@@ -19,9 +19,17 @@ Pop-Location
 Write-Host "Building backend executable..."
 Push-Location $backendDir
 if (Test-Path $backendPython) {
-    & $backendPython -m PyInstaller --onefile --name locallm-backend run.py
+    & $backendPython -m PyInstaller `
+        --onefile `
+        --name locallm-backend `
+        --collect-submodules chromadb `
+        run.py
 } else {
-    python -m PyInstaller --onefile --name locallm-backend run.py
+    python -m PyInstaller `
+        --onefile `
+        --name locallm-backend `
+        --collect-submodules chromadb `
+        run.py
 }
 Pop-Location
 

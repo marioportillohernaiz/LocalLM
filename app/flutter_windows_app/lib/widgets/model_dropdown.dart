@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_palette.dart';
+
 class ModelDropdown extends StatelessWidget {
   const ModelDropdown({
     super.key,
@@ -34,9 +36,9 @@ class ModelDropdown extends StatelessWidget {
         message: models.isEmpty ? 'No compatible models available' : tooltip,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppPalette.panel,
             borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: const Color(0xFFD1D5DB)),
+            border: Border.all(color: AppPalette.border),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -51,8 +53,8 @@ class ModelDropdown extends StatelessWidget {
                 ),
                 style: TextStyle(
                   color: models.isEmpty
-                      ? const Color(0xFF6B7280)
-                      : const Color(0xFF111827),
+                      ? AppPalette.mutedText
+                      : AppPalette.text,
                   fontSize: 13,
                 ),
                 items: [

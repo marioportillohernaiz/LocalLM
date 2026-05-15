@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/chat_response.dart';
 import '../../models/source.dart';
 import '../../services/api_client.dart';
+import '../../theme/app_palette.dart';
 import '../../widgets/chat_answer_view.dart';
 import '../../widgets/local_lm_logo.dart';
 import '../../widgets/model_dropdown.dart';
@@ -153,7 +154,7 @@ class _ChatPageState extends State<ChatPage> {
       ..sort();
 
     return Container(
-      color: Colors.white,
+      color: AppPalette.surface,
       child: Padding(
         padding: const EdgeInsets.all(28),
         child: Column(
@@ -253,7 +254,7 @@ class _ChatHeader extends StatelessWidget {
               SizedBox(height: 4),
               Text(
                 'Ask questions across your indexed local sources.',
-                style: TextStyle(color: Color(0xFF6B7280)),
+                style: TextStyle(color: AppPalette.mutedText),
               ),
             ],
           ),
@@ -275,7 +276,7 @@ class _LogoMark extends StatelessWidget {
   Widget build(BuildContext context) {
     return const LocalLmLogo(
       size: 64,
-      color: Color(0xFF111827),
+      color: AppPalette.text,
     );
   }
 }
@@ -307,8 +308,8 @@ class _LabelSelector extends StatelessWidget {
               avatar: selectedLabels.contains(label)
                   ? const Icon(Icons.check, size: 16)
                   : null,
-              selectedColor: const Color(0xFFE7F7F1),
-              side: const BorderSide(color: Color(0xFFD1D5DB)),
+              selectedColor: AppPalette.frostedBlue,
+              side: const BorderSide(color: AppPalette.border),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(999),
               ),
@@ -337,12 +338,12 @@ class _Composer extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppPalette.panel,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFD1D5DB)),
+        border: Border.all(color: AppPalette.border),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x14000000),
+            color: AppPalette.shadow,
             blurRadius: 22,
             offset: Offset(0, 8),
           ),
@@ -384,9 +385,9 @@ class _Composer extends StatelessWidget {
                         : 'Send',
                 onPressed: asking || !hasModels ? null : onAsk,
                 style: IconButton.styleFrom(
-                  backgroundColor: const Color(0xFF10A37F),
+                  backgroundColor: AppPalette.richCerulean,
                   foregroundColor: Colors.white,
-                  disabledBackgroundColor: const Color(0xFFE5E7EB),
+                  disabledBackgroundColor: AppPalette.frostedBlue,
                 ),
                 icon: asking
                     ? const SizedBox(
@@ -426,7 +427,7 @@ class _EmptyChat extends StatelessWidget {
             Text(
               'Choose one or more source labels, then ask a question. Answers are generated from your indexed local documents.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Color(0xFF6B7280), height: 1.4),
+              style: TextStyle(color: AppPalette.mutedText, height: 1.4),
             ),
           ],
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/chat_history_item.dart';
 import '../../services/api_client.dart';
+import '../../theme/app_palette.dart';
 import '../../widgets/chat_answer_view.dart';
 
 class HistoryPage extends StatefulWidget {
@@ -126,7 +127,7 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: AppPalette.surface,
       child: Padding(
         padding: const EdgeInsets.all(28),
         child: Column(
@@ -225,7 +226,7 @@ class _HistoryHeader extends StatelessWidget {
               SizedBox(height: 4),
               Text(
                 'Return to previous local-file conversations.',
-                style: TextStyle(color: Color(0xFF6B7280)),
+                style: TextStyle(color: AppPalette.mutedText),
               ),
             ],
           ),
@@ -258,7 +259,7 @@ class _HistoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected ? const Color(0xFFECECF1) : const Color(0xFFF9FAFB),
+      color: selected ? AppPalette.frostedBlue : AppPalette.panel,
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
@@ -268,7 +269,7 @@ class _HistoryCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color:
-                  selected ? const Color(0xFFD1D5DB) : const Color(0xFFE5E7EB),
+                  selected ? AppPalette.richCerulean : AppPalette.border,
             ),
           ),
           child: Padding(
@@ -326,10 +327,10 @@ class _HistoryCard extends StatelessWidget {
                                   vertical: 5,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: AppPalette.surface,
                                   borderRadius: BorderRadius.circular(999),
                                   border: Border.all(
-                                    color: const Color(0xFFE5E7EB),
+                                    color: AppPalette.border,
                                   ),
                                 ),
                                 child: Text(
@@ -344,7 +345,7 @@ class _HistoryCard extends StatelessWidget {
                     Text(
                       _formatTimestamp(item.createdAt),
                       style: const TextStyle(
-                        color: Color(0xFF6B7280),
+                        color: AppPalette.mutedText,
                         fontSize: 13,
                       ),
                     ),
@@ -372,7 +373,7 @@ class _SelectHistoryItem extends StatelessWidget {
             width: 54,
             height: 54,
             decoration: BoxDecoration(
-              color: const Color(0xFFF3F4F6),
+              color: AppPalette.frostedBlue,
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Icon(Icons.history_outlined),
@@ -385,7 +386,7 @@ class _SelectHistoryItem extends StatelessWidget {
           const SizedBox(height: 4),
           const Text(
             'Choose a saved question to review its answer and sources.',
-            style: TextStyle(color: Color(0xFF6B7280)),
+            style: TextStyle(color: AppPalette.mutedText),
           ),
         ],
       ),
@@ -406,7 +407,7 @@ class _EmptyHistory extends StatelessWidget {
             width: 54,
             height: 54,
             decoration: BoxDecoration(
-              color: const Color(0xFFF3F4F6),
+              color: AppPalette.frostedBlue,
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Icon(Icons.chat_bubble_outline),
@@ -419,7 +420,7 @@ class _EmptyHistory extends StatelessWidget {
           const SizedBox(height: 4),
           const Text(
             'Ask a question to save your first conversation.',
-            style: TextStyle(color: Color(0xFF6B7280)),
+            style: TextStyle(color: AppPalette.mutedText),
           ),
         ],
       ),

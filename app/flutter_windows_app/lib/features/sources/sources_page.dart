@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/source.dart';
 import '../../services/api_client.dart';
+import '../../theme/app_palette.dart';
 import '../../widgets/model_dropdown.dart';
 
 class SourcesPage extends StatefulWidget {
@@ -221,7 +222,7 @@ class _SourcesPageState extends State<SourcesPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: AppPalette.surface,
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1120),
@@ -324,7 +325,7 @@ class _PageHeader extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 subtitle,
-                style: const TextStyle(color: Color(0xFF6B7280)),
+                style: const TextStyle(color: AppPalette.mutedText),
               ),
             ],
           ),
@@ -367,52 +368,45 @@ class _AddSourcePanel extends StatelessWidget {
     return Row(
       children: [
         Flexible(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: const Color(0xFFF9FAFB),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: const Color(0xFFE5E7EB)),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 320,
-                    child: TextField(
-                      controller: controller,
-                      decoration: const InputDecoration(
-                        labelText: 'Source label',
-                        hintText: 'Research, notes, project docs',
-                      ),
-                      onSubmitted: (_) {
-                        if (hasModels && !loading) {
-                          onAddFolder();
-                        }
-                      },
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                SizedBox(
+                  width: 320,
+                  child: TextField(
+                    controller: controller,
+                    decoration: const InputDecoration(
+                      labelText: 'Source label',
+                      hintText: 'Research, notes, project docs',
+                    ),
+                    onSubmitted: (_) {
+                      if (hasModels && !loading) {
+                        onAddFolder();
+                      }
+                    },
+                  ),
+                ),
+                FilledButton.icon(
+                  onPressed: loading || !hasModels ? null : onAddFolder,
+                  icon: const Icon(Icons.create_new_folder_outlined),
+                  label: const Text('Add folder'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: loading || !hasModels ? null : onAddFile,
+                  icon: const Icon(Icons.note_add_outlined),
+                  label: const Text('Add file'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppPalette.text,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(999),
                     ),
                   ),
-                  FilledButton.icon(
-                    onPressed: loading || !hasModels ? null : onAddFolder,
-                    icon: const Icon(Icons.create_new_folder_outlined),
-                    label: const Text('Add folder'),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: loading || !hasModels ? null : onAddFile,
-                    icon: const Icon(Icons.note_add_outlined),
-                    label: const Text('Add file'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF111827),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -454,7 +448,7 @@ class _SourceCard extends StatelessWidget {
           width: 42,
           height: 42,
           decoration: BoxDecoration(
-            color: const Color(0xFFF3F4F6),
+            color: AppPalette.frostedBlue,
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(Icons.folder_open_outlined),
@@ -469,7 +463,7 @@ class _SourceCard extends StatelessWidget {
           '${source.path}\n$lastIndexed',
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: Color(0xFF6B7280), height: 1.35),
+          style: const TextStyle(color: AppPalette.mutedText, height: 1.35),
         ),
         trailing: IconButton.filledTonal(
           tooltip: 'Re-index',
@@ -520,7 +514,7 @@ class _IndexingBanner extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFE7F7F1),
+        color: AppPalette.frostedBlue,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -534,7 +528,7 @@ class _IndexingBanner extends StatelessWidget {
           Expanded(
             child: Text(
               'Indexing $label. Large PDFs can take several minutes.',
-              style: const TextStyle(color: Color(0xFF065F46)),
+              style: const TextStyle(color: AppPalette.text),
             ),
           ),
         ],
@@ -556,7 +550,7 @@ class _EmptySources extends StatelessWidget {
             width: 54,
             height: 54,
             decoration: BoxDecoration(
-              color: const Color(0xFFF3F4F6),
+              color: AppPalette.frostedBlue,
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Icon(Icons.folder_open_outlined),
@@ -569,7 +563,7 @@ class _EmptySources extends StatelessWidget {
           const SizedBox(height: 4),
           const Text(
             'Add a labelled folder or file to start indexing.',
-            style: TextStyle(color: Color(0xFF6B7280)),
+            style: TextStyle(color: AppPalette.mutedText),
           ),
         ],
       ),

@@ -6,6 +6,7 @@ import 'features/history/history_page.dart';
 import 'features/settings/settings_page.dart';
 import 'features/sources/sources_page.dart';
 import 'services/api_providers.dart';
+import 'theme/app_palette.dart';
 import 'widgets/local_lm_logo.dart';
 
 class LocalLMApp extends StatelessWidget {
@@ -19,39 +20,47 @@ class LocalLMApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF10A37F),
+          seedColor: AppPalette.richCerulean,
           brightness: Brightness.light,
-          surface: const Color(0xFFFFFFFF),
+          surface: AppPalette.panel,
+          primary: AppPalette.richCerulean,
+          secondary: AppPalette.frostedBlue,
         ),
-        scaffoldBackgroundColor: const Color(0xFFFFFFFF),
+        scaffoldBackgroundColor: AppPalette.surface,
         fontFamily: 'Segoe UI',
+        textTheme: ThemeData.light().textTheme.apply(
+              bodyColor: AppPalette.text,
+              displayColor: AppPalette.text,
+            ),
+        iconTheme: const IconThemeData(color: AppPalette.richCerulean),
         cardTheme: CardThemeData(
           elevation: 0,
-          color: const Color(0xFFFFFFFF),
+          color: AppPalette.panel,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
-            side: const BorderSide(color: Color(0xFFE5E7EB)),
+            side: const BorderSide(color: AppPalette.border),
           ),
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: const Color(0xFFFFFFFF),
+          fillColor: AppPalette.panel,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(color: Color(0xFFD1D5DB)),
+            borderSide: const BorderSide(color: AppPalette.border),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(color: Color(0xFFD1D5DB)),
+            borderSide: const BorderSide(color: AppPalette.border),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(color: Color(0xFF10A37F), width: 1.5),
+            borderSide:
+                const BorderSide(color: AppPalette.richCerulean, width: 1.5),
           ),
         ),
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFF10A37F),
+            backgroundColor: AppPalette.richCerulean,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(999),
@@ -96,7 +105,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     ];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFFFF),
+      backgroundColor: AppPalette.surface,
       body: Row(
         children: [
           _Sidebar(
@@ -131,8 +140,8 @@ class _Sidebar extends StatelessWidget {
     return Container(
       width: 176,
       decoration: const BoxDecoration(
-        color: Color(0xFFF7F7F8),
-        border: Border(right: BorderSide(color: Color(0xFFE5E7EB))),
+        color: AppPalette.surface,
+        border: Border(right: BorderSide(color: AppPalette.frostedBlue)),
       ),
       child: SafeArea(
         child: Padding(
@@ -175,7 +184,7 @@ class _Sidebar extends StatelessWidget {
                 children: [
                   LocalLmLogo(
                     size: 38,
-                    color: Color(0xFF111827),
+                    color: AppPalette.text,
                   ),
                   SizedBox(width: 10),
                   Expanded(
@@ -189,7 +198,7 @@ class _Sidebar extends StatelessWidget {
                         Text(
                           'Local RAG assistant',
                           style: TextStyle(
-                            color: Color(0xFF6B7280),
+                            color: AppPalette.mutedText,
                             fontSize: 11,
                           ),
                           maxLines: 1,
@@ -223,11 +232,11 @@ class _NewChatButton extends StatelessWidget {
         child: Text('New chat'),
       ),
       style: OutlinedButton.styleFrom(
-        foregroundColor: const Color(0xFF111827),
+        foregroundColor: AppPalette.text,
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        side: const BorderSide(color: Color(0xFFD1D5DB)),
+        side: const BorderSide(color: AppPalette.border),
       ),
     );
   }
@@ -251,7 +260,7 @@ class _SidebarItem extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Material(
-        color: selected ? const Color(0xFFECECF1) : Colors.transparent,
+        color: selected ? AppPalette.frostedBlue : Colors.transparent,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
@@ -260,13 +269,13 @@ class _SidebarItem extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             child: Row(
               children: [
-                Icon(icon, size: 20, color: const Color(0xFF374151)),
+                Icon(icon, size: 20, color: AppPalette.richCerulean),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     label,
                     style: TextStyle(
-                      color: const Color(0xFF111827),
+                      color: AppPalette.text,
                       fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                     ),
                   ),

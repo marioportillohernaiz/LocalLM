@@ -1,9 +1,22 @@
-from pathlib import Path
 import os
+import sys
+from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = Path(os.getenv("LOCALLM_DATA_DIR", BASE_DIR / "data"))
+
+
+def _default_data_dir() -> Path:
+    if getattr(sys, "frozen", False):
+        local_app_data = os.getenv("LOCALAPPDATA")
+        if local_app_data:
+            return Path(local_app_data) / "LocalLM" / "data"
+        return Path.home() / "AppData" / "Local" / "LocalLM" / "data"
+
+    return BASE_DIR / "data"
+
+
+DATA_DIR = Path(os.getenv("LOCALLM_DATA_DIR", _default_data_dir()))
 SQLITE_PATH = DATA_DIR / "app.db"
 CHROMA_DIR = DATA_DIR / "chroma"
 

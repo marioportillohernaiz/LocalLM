@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/model_catalog_item.dart';
 import '../../services/api_providers.dart';
+import '../../theme/app_palette.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -92,7 +93,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
     return Container(
       width: double.infinity,
-      color: Colors.white,
+      color: AppPalette.surface,
       child: Padding(
         padding: const EdgeInsets.all(28),
         child: Column(
@@ -157,7 +158,7 @@ class _Header extends StatelessWidget {
               SizedBox(height: 4),
               Text(
                 'Install local models for chat answers and source indexing.',
-                style: TextStyle(color: Color(0xFF6B7280)),
+                style: TextStyle(color: AppPalette.mutedText),
               ),
             ],
           ),
@@ -216,7 +217,7 @@ class _ModelTierCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         subtitle,
-                        style: const TextStyle(color: Color(0xFF6B7280)),
+                        style: const TextStyle(color: AppPalette.mutedText),
                       ),
                     ],
                   ),
@@ -256,9 +257,9 @@ class _ModelRow extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
+        color: AppPalette.panel,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: AppPalette.border),
       ),
       child: Padding(
         padding: const EdgeInsets.all(14),
@@ -269,12 +270,12 @@ class _ModelRow extends StatelessWidget {
               height: 42,
               decoration: BoxDecoration(
                 color:
-                    isChat ? const Color(0xFFECECF1) : const Color(0xFFE7F7F1),
+                    isChat ? AppPalette.frostedBlue : AppPalette.panel,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 isChat ? Icons.chat_bubble_outline : Icons.dataset_outlined,
-                color: const Color(0xFF111827),
+                color: AppPalette.richCerulean,
               ),
             ),
             const SizedBox(width: 12),
@@ -298,13 +299,13 @@ class _ModelRow extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     model.description,
-                    style: const TextStyle(color: Color(0xFF6B7280)),
+                    style: const TextStyle(color: AppPalette.mutedText),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     model.name,
                     style: const TextStyle(
-                      color: Color(0xFF6B7280),
+                      color: AppPalette.mutedText,
                       fontSize: 12,
                     ),
                   ),
@@ -334,13 +335,13 @@ class _Badge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppPalette.surface,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: const Color(0xFFD1D5DB)),
+        border: Border.all(color: AppPalette.border),
       ),
       child: Text(
         label,
-        style: const TextStyle(fontSize: 12, color: Color(0xFF374151)),
+        style: const TextStyle(fontSize: 12, color: AppPalette.text),
       ),
     );
   }

@@ -27,7 +27,7 @@
 
 ---
 
-LocalLM indexes labelled local files, retrieves the most relevant chunks, and generates answers with local Ollama models. Your documents stay on your machine: the desktop app talks to a local FastAPI backend, which stores metadata in SQLite and embeddings in ChromaDB.
+LocalLM indexes labelled local files, retrieves the most relevant chunks, and generates answers with local Ollama models. Your documents stay on your machine: the desktop app talks to a local FastAPI backend, which stores metadata in SQLite and embeddings in ChromaDB. The packaged Windows app stores this data under `%LOCALAPPDATA%\LocalLM\data`.
 
 ## Install Instructions
 
@@ -137,7 +137,7 @@ flutter run -d windows
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `LOCALLM_DATA_DIR` | `backend/data` | SQLite and ChromaDB storage location |
+| `LOCALLM_DATA_DIR` | Source: `backend/data`; packaged Windows app: `%LOCALAPPDATA%\LocalLM\data` | SQLite and ChromaDB storage location |
 | `LOCALLM_LLM_MODEL` | `qwen2.5:1.5b` | Ollama model used for answers |
 | `LOCALLM_EMBEDDING_MODEL` | `qwen3-embedding:0.6b` | Ollama model used for embeddings |
 | `LOCALLM_CHUNK_SIZE_CHARS` | `3000` | Maximum chunk size before embedding |
@@ -149,6 +149,13 @@ Example:
 ```powershell
 $env:LOCALLM_LLM_MODEL = "qwen3:8b"
 $env:LOCALLM_EMBEDDING_MODEL = "mxbai-embed-large"
+python run.py
+```
+
+To keep source and packaged builds on the same data folder, set `LOCALLM_DATA_DIR` before starting the backend:
+
+```powershell
+$env:LOCALLM_DATA_DIR = "$env:LOCALAPPDATA\LocalLM\data"
 python run.py
 ```
 

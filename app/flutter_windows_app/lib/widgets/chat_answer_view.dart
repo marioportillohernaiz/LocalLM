@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
 import '../models/chat_response.dart';
+import '../theme/app_palette.dart';
 import 'local_lm_logo.dart';
 
 class ChatAnswerView extends StatelessWidget {
@@ -31,7 +32,7 @@ class ChatAnswerView extends StatelessWidget {
                     MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
                   p: textTheme.bodyLarge?.copyWith(
                     height: 1.55,
-                    color: const Color(0xFF111827),
+                    color: AppPalette.text,
                   ),
                   listBullet: textTheme.bodyLarge?.copyWith(height: 1.55),
                   h1: textTheme.headlineMedium,
@@ -39,17 +40,18 @@ class ChatAnswerView extends StatelessWidget {
                   h3: textTheme.titleMedium,
                   strong: const TextStyle(fontWeight: FontWeight.w800),
                   code: textTheme.bodyMedium?.copyWith(
-                    backgroundColor: const Color(0xFFF3F4F6),
+                    backgroundColor: AppPalette.frostedBlue,
                     fontFamily: 'Consolas',
                   ),
                   codeblockDecoration: BoxDecoration(
-                    color: const Color(0xFFF3F4F6),
+                    color: AppPalette.frostedBlue,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   blockquoteDecoration: BoxDecoration(
-                    color: const Color(0xFFF9FAFB),
+                    color: AppPalette.panel,
                     border: const Border(
-                      left: BorderSide(color: Color(0xFF10A37F), width: 4),
+                      left:
+                          BorderSide(color: AppPalette.richCerulean, width: 4),
                     ),
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -85,7 +87,7 @@ class ChatAnswerView extends StatelessWidget {
                     width: 34,
                     height: 34,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF3F4F6),
+                      color: AppPalette.frostedBlue,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(Icons.description_outlined, size: 18),
@@ -100,7 +102,7 @@ class ChatAnswerView extends StatelessWidget {
                     source.filePath,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Color(0xFF6B7280)),
+                    style: const TextStyle(color: AppPalette.mutedText),
                   ),
                   childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   children: [
@@ -134,7 +136,7 @@ class _UserMessage extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: 620),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: const Color(0xFFF3F4F6),
+            color: AppPalette.frostedBlue,
             borderRadius: BorderRadius.circular(22),
           ),
           child: Padding(
@@ -142,7 +144,7 @@ class _UserMessage extends StatelessWidget {
             child: SelectableText(
               text,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: const Color(0xFF111827),
+                    color: AppPalette.text,
                     height: 1.4,
                   ),
             ),
@@ -163,7 +165,7 @@ class _AssistantAvatar extends StatelessWidget {
       height: 44,
       child: LocalLmLogo(
         size: 44,
-        color: Color(0xFF111827),
+        color: AppPalette.text,
       ),
     );
   }

@@ -18,7 +18,7 @@ class ChatAnswerView extends StatelessWidget {
       padding: const EdgeInsets.only(top: 8, bottom: 8),
       children: [
         _UserMessage(text: response.question),
-        const SizedBox(height: 28),
+        const SizedBox(height: 24),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -40,18 +40,17 @@ class ChatAnswerView extends StatelessWidget {
                   h3: textTheme.titleMedium,
                   strong: const TextStyle(fontWeight: FontWeight.w800),
                   code: textTheme.bodyMedium?.copyWith(
-                    backgroundColor: AppPalette.frostedBlue,
+                    backgroundColor: AppPalette.dustGrey,
                     fontFamily: 'Consolas',
                   ),
                   codeblockDecoration: BoxDecoration(
-                    color: AppPalette.frostedBlue,
-                    borderRadius: BorderRadius.circular(12),
+                    color: AppPalette.dustGrey,
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   blockquoteDecoration: BoxDecoration(
                     color: AppPalette.panel,
                     border: const Border(
-                      left:
-                          BorderSide(color: AppPalette.richCerulean, width: 4),
+                      left: BorderSide(color: AppPalette.gunmetal, width: 4),
                     ),
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -63,7 +62,7 @@ class ChatAnswerView extends StatelessWidget {
         const SizedBox(height: 24),
         if (response.sources.isNotEmpty) ...[
           Padding(
-            padding: const EdgeInsets.only(left: 46),
+            padding: const EdgeInsets.only(left: 44),
             child: Text(
               'Sources',
               style: textTheme.titleMedium?.copyWith(
@@ -78,17 +77,17 @@ class ChatAnswerView extends StatelessWidget {
               child: Card(
                 child: ExpansionTile(
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   collapsedShape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   leading: Container(
                     width: 34,
                     height: 34,
                     decoration: BoxDecoration(
-                      color: AppPalette.frostedBlue,
-                      borderRadius: BorderRadius.circular(10),
+                      color: AppPalette.dustGrey,
+                      borderRadius: BorderRadius.circular(9),
                     ),
                     child: const Icon(Icons.description_outlined, size: 18),
                   ),
@@ -136,11 +135,11 @@ class _UserMessage extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: 620),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: AppPalette.frostedBlue,
-            borderRadius: BorderRadius.circular(22),
+            color: AppPalette.dustGrey,
+            borderRadius: BorderRadius.circular(18),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: SelectableText(
               text,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(

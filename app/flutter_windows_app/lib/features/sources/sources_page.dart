@@ -223,71 +223,72 @@ class _SourcesPageState extends State<SourcesPage> {
   Widget build(BuildContext context) {
     return Container(
       color: AppPalette.surface,
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1120),
-          child: Padding(
-            padding: const EdgeInsets.all(28),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _PageHeader(
+            title: 'Sources',
+            subtitle: 'Connect local folders and files for retrieval.',
+            loading: loading,
+            onRefresh: loadSources,
+          ),
+          Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              border: Border(bottom: BorderSide(color: AppPalette.border)),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+            child: _AddSourcePanel(
+              controller: labelController,
+              loading: loading,
+              onAddFolder: addFolder,
+              onAddFile: addFile,
+              models: models,
+              selectedModel: selectedEmbeddingModel,
+              loadingModels: loadingModels,
+              hasModels: models.isNotEmpty,
+              onModelChanged: (model) {
+                setState(() {
+                  selectedEmbeddingModel = model;
+                });
+              },
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(32),
               children: [
-                _PageHeader(
-                  title: 'Sources',
-                  subtitle: 'Connect local folders and files for retrieval.',
-                  loading: loading,
-                  onRefresh: loadSources,
-                ),
-                const SizedBox(height: 22),
-                _AddSourcePanel(
-                  controller: labelController,
-                  loading: loading,
-                  onAddFolder: addFolder,
-                  onAddFile: addFile,
-                  models: models,
-                  selectedModel: selectedEmbeddingModel,
-                  loadingModels: loadingModels,
-                  hasModels: models.isNotEmpty,
-                  onModelChanged: (model) {
-                    setState(() {
-                      selectedEmbeddingModel = model;
-                    });
-                  },
-                ),
                 if (errorMessage != null) ...[
-                  const SizedBox(height: 16),
                   _ErrorBanner(message: errorMessage!),
                 ],
                 if (activeIndexingLabel != null) ...[
                   const SizedBox(height: 16),
                   _IndexingBanner(label: activeIndexingLabel!),
                 ],
-                const SizedBox(height: 22),
-                Expanded(
-                  child: loading && sources.isEmpty
-                      ? const Center(child: CircularProgressIndicator())
-                      : sources.isEmpty
-                          ? const _EmptySources()
-                          : ListView.separated(
-                              itemCount: sources.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(height: 10),
-                              itemBuilder: (context, index) {
-                                final source = sources[index];
-                                final indexing =
-                                    indexingSourceIds.contains(source.id);
-                                return _SourceCard(
-                                  source: source,
-                                  indexing: indexing,
-                                  onReindex:
-                                      indexing ? null : () => reindex(source),
-                                );
-                              },
-                            ),
-                ),
+                const SizedBox(height: 24),
+                if (loading && sources.isEmpty)
+                  const SizedBox(
+                    height: 240,
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                else if (sources.isEmpty)
+                  const SizedBox(height: 360, child: _EmptySources())
+                else
+                  ...sources.map((source) {
+                    final indexing = indexingSourceIds.contains(source.id);
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _SourceCard(
+                        source: source,
+                        indexing: indexing,
+                        onReindex: indexing ? null : () => reindex(source),
+                      ),
+                    );
+                  }),
               ],
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -308,34 +309,43 @@ class _PageHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0,
+    return Container(
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppPalette.border)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: const TextStyle(color: AppPalette.mutedText),
-              ),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    color: AppPalette.mutedText,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        IconButton(
-          tooltip: 'Refresh',
-          onPressed: loading ? null : onRefresh,
-          icon: const Icon(Icons.refresh),
-        ),
-      ],
+          IconButton(
+            tooltip: 'Refresh',
+            onPressed: loading ? null : onRefresh,
+            icon: const Icon(Icons.refresh, size: 20),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -368,46 +378,43 @@ class _AddSourcePanel extends StatelessWidget {
     return Row(
       children: [
         Flexible(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                SizedBox(
-                  width: 320,
-                  child: TextField(
-                    controller: controller,
-                    decoration: const InputDecoration(
-                      labelText: 'Source label',
-                      hintText: 'Research, notes, project docs',
-                    ),
-                    onSubmitted: (_) {
-                      if (hasModels && !loading) {
-                        onAddFolder();
-                      }
-                    },
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 10,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              SizedBox(
+                width: 300,
+                child: TextField(
+                  controller: controller,
+                  decoration: const InputDecoration(
+                    labelText: 'Source label',
+                    hintText: 'Research, notes, project docs',
+                  ),
+                  onSubmitted: (_) {
+                    if (hasModels && !loading) {
+                      onAddFolder();
+                    }
+                  },
+                ),
+              ),
+              FilledButton.icon(
+                onPressed: loading || !hasModels ? null : onAddFolder,
+                icon: const Icon(Icons.create_new_folder_outlined),
+                label: const Text('Add folder'),
+              ),
+              OutlinedButton.icon(
+                onPressed: loading || !hasModels ? null : onAddFile,
+                icon: const Icon(Icons.note_add_outlined),
+                label: const Text('Add file'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppPalette.text,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(999),
                   ),
                 ),
-                FilledButton.icon(
-                  onPressed: loading || !hasModels ? null : onAddFolder,
-                  icon: const Icon(Icons.create_new_folder_outlined),
-                  label: const Text('Add folder'),
-                ),
-                OutlinedButton.icon(
-                  onPressed: loading || !hasModels ? null : onAddFile,
-                  icon: const Icon(Icons.note_add_outlined),
-                  label: const Text('Add file'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppPalette.text,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
         const SizedBox(width: 12),
@@ -445,11 +452,11 @@ class _SourceCard extends StatelessWidget {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
         leading: Container(
-          width: 42,
-          height: 42,
+          width: 38,
+          height: 38,
           decoration: BoxDecoration(
-            color: AppPalette.frostedBlue,
-            borderRadius: BorderRadius.circular(12),
+            color: AppPalette.dustGrey,
+            borderRadius: BorderRadius.circular(10),
           ),
           child: const Icon(Icons.folder_open_outlined),
         ),
@@ -468,6 +475,13 @@ class _SourceCard extends StatelessWidget {
         trailing: IconButton.filledTonal(
           tooltip: 'Re-index',
           onPressed: onReindex,
+          style: IconButton.styleFrom(
+            backgroundColor: AppPalette.alabasterGrey,
+            foregroundColor: AppPalette.gunmetal,
+            disabledBackgroundColor: AppPalette.alabasterGrey,
+            disabledForegroundColor:
+                AppPalette.gunmetal.withValues(alpha: 0.45),
+          ),
           icon: indexing
               ? const SizedBox(
                   width: 18,
@@ -514,7 +528,7 @@ class _IndexingBanner extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppPalette.frostedBlue,
+        color: AppPalette.dustGrey,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -550,7 +564,7 @@ class _EmptySources extends StatelessWidget {
             width: 54,
             height: 54,
             decoration: BoxDecoration(
-              color: AppPalette.frostedBlue,
+              color: AppPalette.dustGrey,
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Icon(Icons.folder_open_outlined),

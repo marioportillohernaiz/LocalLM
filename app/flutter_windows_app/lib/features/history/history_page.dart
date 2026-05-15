@@ -44,6 +44,7 @@ class _HistoryPageState extends State<HistoryPage> {
             !nextItems.any((item) => item.id == selectedItem!.id)) {
           selectedItem = null;
         }
+        selectedItem ??= nextItems.isEmpty ? null : nextItems.first;
       });
     } catch (error) {
       if (!mounted) {
@@ -128,34 +129,32 @@ class _HistoryPageState extends State<HistoryPage> {
   Widget build(BuildContext context) {
     return Container(
       color: AppPalette.surface,
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _HistoryHeader(
-              loading: loading,
-              onRefresh: loadHistory,
-            ),
-            if (errorMessage != null) ...[
-              const SizedBox(height: 16),
-              _ErrorBanner(message: errorMessage!),
-            ],
-            const SizedBox(height: 18),
-            Expanded(
-              child: loading && items.isEmpty
-                  ? const Center(child: CircularProgressIndicator())
-                  : items.isEmpty
-                      ? const _EmptyHistory()
-                      : Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              width: 360,
-                              child: ListView.separated(
+      child: Row(
+        children: [
+          SizedBox(
+            width: 320,
+            child: DecoratedBox(
+              decoration: const BoxDecoration(
+                border: Border(right: BorderSide(color: AppPalette.border)),
+              ),
+              child: Column(
+                children: [
+                  _HistoryHeader(loading: loading, onRefresh: loadHistory),
+                  if (errorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                      child: _ErrorBanner(message: errorMessage!),
+                    ),
+                  Expanded(
+                    child: loading && items.isEmpty
+                        ? const Center(child: CircularProgressIndicator())
+                        : items.isEmpty
+                            ? const _EmptyHistory()
+                            : ListView.separated(
+                                padding: const EdgeInsets.all(12),
                                 itemCount: items.length,
                                 separatorBuilder: (_, __) =>
-                                    const SizedBox(height: 10),
+                                    const SizedBox(height: 8),
                                 itemBuilder: (context, index) {
                                   final item = items[index];
                                   final selected = selectedItem?.id == item.id;
@@ -172,27 +171,63 @@ class _HistoryPageState extends State<HistoryPage> {
                                   );
                                 },
                               ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              color: const Color.fromARGB(255, 255, 255, 255),
+              child: selectedItem == null
+                  ? const _SelectHistoryItem()
+                  : Column(
+                      children: [
+                        Container(
+                          decoration: const BoxDecoration(
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            border: Border(
+                              bottom: BorderSide(color: AppPalette.border),
                             ),
-                            const SizedBox(width: 28),
-                            Expanded(
-                              child: Center(
-                                child: ConstrainedBox(
-                                  constraints:
-                                      const BoxConstraints(maxWidth: 900),
-                                  child: selectedItem == null
-                                      ? const _SelectHistoryItem()
-                                      : ChatAnswerView(
-                                          response:
-                                              selectedItem!.toChatResponse(),
-                                        ),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 16,
+                          ),
+                          child: const Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Conversation Preview',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Center(
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 720),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                ),
+                                child: ChatAnswerView(
+                                  response: selectedItem!.toChatResponse(),
                                 ),
                               ),
                             ),
-                          ],
+                          ),
                         ),
+                      ],
+                    ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -209,34 +244,40 @@ class _HistoryHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'History',
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0,
+    return Container(
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppPalette.border)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      child: Row(
+        children: [
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'History',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0,
+                  ),
                 ),
-              ),
-              SizedBox(height: 4),
-              Text(
-                'Return to previous local-file conversations.',
-                style: TextStyle(color: AppPalette.mutedText),
-              ),
-            ],
+                SizedBox(height: 2),
+                Text(
+                  'Return to previous local-file conversations.',
+                  style: TextStyle(color: AppPalette.mutedText, fontSize: 14),
+                ),
+              ],
+            ),
           ),
-        ),
-        IconButton(
-          tooltip: 'Refresh history',
-          onPressed: loading ? null : onRefresh,
-          icon: const Icon(Icons.refresh),
-        ),
-      ],
+          IconButton(
+            tooltip: 'Refresh history',
+            onPressed: loading ? null : onRefresh,
+            icon: const Icon(Icons.refresh, size: 20),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -259,21 +300,20 @@ class _HistoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected ? AppPalette.frostedBlue : AppPalette.panel,
-      borderRadius: BorderRadius.circular(18),
+      color: selected ? AppPalette.dustGrey : AppPalette.panel,
+      borderRadius: BorderRadius.circular(12),
       child: InkWell(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(12),
         onTap: onTap,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color:
-                  selected ? AppPalette.richCerulean : AppPalette.border,
+              color: selected ? AppPalette.gunmetal : AppPalette.border,
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -373,8 +413,8 @@ class _SelectHistoryItem extends StatelessWidget {
             width: 54,
             height: 54,
             decoration: BoxDecoration(
-              color: AppPalette.frostedBlue,
-              borderRadius: BorderRadius.circular(16),
+              color: AppPalette.dustGrey,
+              borderRadius: BorderRadius.circular(14),
             ),
             child: const Icon(Icons.history_outlined),
           ),
@@ -407,8 +447,8 @@ class _EmptyHistory extends StatelessWidget {
             width: 54,
             height: 54,
             decoration: BoxDecoration(
-              color: AppPalette.frostedBlue,
-              borderRadius: BorderRadius.circular(16),
+              color: AppPalette.dustGrey,
+              borderRadius: BorderRadius.circular(14),
             ),
             child: const Icon(Icons.chat_bubble_outline),
           ),

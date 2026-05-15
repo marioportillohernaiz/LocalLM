@@ -20,11 +20,11 @@ class LocalLMApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: AppPalette.richCerulean,
+          seedColor: AppPalette.gunmetal,
           brightness: Brightness.light,
           surface: AppPalette.panel,
-          primary: AppPalette.richCerulean,
-          secondary: AppPalette.frostedBlue,
+          primary: AppPalette.gunmetal,
+          secondary: AppPalette.dustGrey,
         ),
         scaffoldBackgroundColor: AppPalette.surface,
         fontFamily: 'Segoe UI',
@@ -32,12 +32,12 @@ class LocalLMApp extends StatelessWidget {
               bodyColor: AppPalette.text,
               displayColor: AppPalette.text,
             ),
-        iconTheme: const IconThemeData(color: AppPalette.richCerulean),
+        iconTheme: const IconThemeData(color: AppPalette.gunmetal),
         cardTheme: CardThemeData(
           elevation: 0,
           color: AppPalette.panel,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(12),
             side: const BorderSide(color: AppPalette.border),
           ),
         ),
@@ -45,22 +45,22 @@ class LocalLMApp extends StatelessWidget {
           filled: true,
           fillColor: AppPalette.panel,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: AppPalette.border),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: AppPalette.border),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(12),
             borderSide:
-                const BorderSide(color: AppPalette.richCerulean, width: 1.5),
+                const BorderSide(color: AppPalette.gunmetal, width: 1.5),
           ),
         ),
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
-            backgroundColor: AppPalette.richCerulean,
+            backgroundColor: AppPalette.gunmetal,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(999),
@@ -138,80 +138,96 @@ class _Sidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 176,
+      width: 196,
       decoration: const BoxDecoration(
-        color: AppPalette.surface,
-        border: Border(right: BorderSide(color: AppPalette.frostedBlue)),
+        color: AppPalette.panel,
+        border: Border(right: BorderSide(color: AppPalette.dustGrey)),
       ),
       child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _NewChatButton(
-                onPressed: onNewChat,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const _SidebarBrandHeader(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+              child: _NewChatButton(onPressed: onNewChat),
+            ),
+            Expanded(
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _SidebarItem(
+                      icon: Icons.folder_open_outlined,
+                      label: 'Sources',
+                      selected: selectedIndex == 0,
+                      onTap: () => onDestinationSelected(0),
+                    ),
+                    _SidebarItem(
+                      icon: Icons.chat_bubble_outline,
+                      label: 'Chat',
+                      selected: selectedIndex == 1,
+                      onTap: () => onDestinationSelected(1),
+                    ),
+                    _SidebarItem(
+                      icon: Icons.history_outlined,
+                      label: 'History',
+                      selected: selectedIndex == 2,
+                      onTap: () => onDestinationSelected(2),
+                    ),
+                    const Spacer(),
+                  ],
+                ),
               ),
-              const SizedBox(height: 18),
-              _SidebarItem(
-                icon: Icons.folder_open_outlined,
-                label: 'Sources',
-                selected: selectedIndex == 0,
-                onTap: () => onDestinationSelected(0),
+            ),
+            Container(
+              decoration: const BoxDecoration(
+                border: Border(top: BorderSide(color: AppPalette.border)),
               ),
-              _SidebarItem(
-                icon: Icons.chat_bubble_outline,
-                label: 'Chat',
-                selected: selectedIndex == 1,
-                onTap: () => onDestinationSelected(1),
-              ),
-              _SidebarItem(
-                icon: Icons.history_outlined,
-                label: 'History',
-                selected: selectedIndex == 2,
-                onTap: () => onDestinationSelected(2),
-              ),
-              const Spacer(),
-              const Divider(height: 24),
-              _SidebarItem(
+              padding: const EdgeInsets.all(8),
+              child: _SidebarItem(
                 icon: Icons.settings_outlined,
                 label: 'Settings',
                 selected: selectedIndex == 3,
                 onTap: () => onDestinationSelected(3),
               ),
-              const SizedBox(height: 8),
-              const Row(
-                children: [
-                  LocalLmLogo(
-                    size: 38,
-                    color: AppPalette.text,
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'LocalLM',
-                          style: TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                        Text(
-                          'Local RAG assistant',
-                          style: TextStyle(
-                            color: AppPalette.mutedText,
-                            fontSize: 11,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+}
+
+class _SidebarBrandHeader extends StatelessWidget {
+  const _SidebarBrandHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 18),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 32,
+            height: 32,
+            child: LocalLmLogo(size: 32),
+          ),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'LocalLM',
+              style: TextStyle(
+                color: AppPalette.text,
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -234,8 +250,10 @@ class _NewChatButton extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         foregroundColor: AppPalette.text,
         alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: AppPalette.surface,
+        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         side: const BorderSide(color: AppPalette.border),
       ),
     );
@@ -260,22 +278,23 @@ class _SidebarItem extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Material(
-        color: selected ? AppPalette.frostedBlue : Colors.transparent,
-        borderRadius: BorderRadius.circular(10),
+        color: selected ? AppPalette.dustGrey : Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
         child: InkWell(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8),
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             child: Row(
               children: [
-                Icon(icon, size: 20, color: AppPalette.richCerulean),
-                const SizedBox(width: 10),
+                Icon(icon, size: 18, color: AppPalette.gunmetal),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     label,
                     style: TextStyle(
                       color: AppPalette.text,
+                      fontSize: 14,
                       fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                     ),
                   ),

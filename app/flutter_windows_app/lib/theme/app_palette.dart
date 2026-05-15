@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 class AppPalette {
   const AppPalette._();
 
-  static const frozenWater = Color(0xFFE9FFF9);
-  static const frostedBlue = Color(0xFF9ED8DB);
-  static const richCerulean = Color(0xFF467599);
+  static const gunmetal = Color(0xFF393E41);
+  static const dustGrey = Color(0xFFD3D0CB);
+  static const alabasterGrey = Color(0xFFE7E5DF);
 
   static const surface = Colors.white;
-  static const panel = Color(0xFFF6FFFC);
-  static const panelStrong = frostedBlue;
-  static const border = frostedBlue;
-  static const text = Color(0xFF14384D);
-  static const mutedText = richCerulean;
-  static const shadow = Color(0x1F467599);
+  static const panel = alabasterGrey;
+  static const panelStrong = dustGrey;
+  static const border = dustGrey;
+  static const text = gunmetal;
+  static const mutedText = gunmetal;
+  static const shadow = Color(0x1F393E41);
 }

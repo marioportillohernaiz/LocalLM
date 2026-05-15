@@ -94,37 +94,34 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     return Container(
       width: double.infinity,
       color: AppPalette.surface,
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _Header(loading: loading, onRefresh: loadModels),
-            const SizedBox(height: 18),
-            if (errorMessage != null) ...[
-              const SizedBox(height: 16),
-              _ErrorBanner(message: errorMessage!),
-            ],
-            const SizedBox(height: 18),
-            Expanded(
-              child: loading && models.isEmpty
-                  ? const Center(child: CircularProgressIndicator())
-                  : ListView.separated(
-                      itemCount: groupedModels.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemBuilder: (context, index) {
-                        final entry = groupedModels.entries.elementAt(index);
-                        return _ModelTierCard(
-                          sizeLabel: entry.key,
-                          models: entry.value,
-                          downloadingModels: downloadingModels,
-                          onDownload: downloadModel,
-                        );
-                      },
-                    ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _Header(loading: loading, onRefresh: loadModels),
+          if (errorMessage != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(32, 16, 32, 0),
+              child: _ErrorBanner(message: errorMessage!),
             ),
-          ],
-        ),
+          Expanded(
+            child: loading && models.isEmpty
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.separated(
+                    padding: const EdgeInsets.all(32),
+                    itemCount: groupedModels.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 24),
+                    itemBuilder: (context, index) {
+                      final entry = groupedModels.entries.elementAt(index);
+                      return _ModelTierCard(
+                        sizeLabel: entry.key,
+                        models: entry.value,
+                        downloadingModels: downloadingModels,
+                        onDownload: downloadModel,
+                      );
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }
@@ -141,34 +138,40 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Settings',
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0,
+    return Container(
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppPalette.border)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+      child: Row(
+        children: [
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Settings',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0,
+                  ),
                 ),
-              ),
-              SizedBox(height: 4),
-              Text(
-                'Install local models for chat answers and source indexing.',
-                style: TextStyle(color: AppPalette.mutedText),
-              ),
-            ],
+                SizedBox(height: 2),
+                Text(
+                  'Install local models for chat answers and source indexing.',
+                  style: TextStyle(color: AppPalette.mutedText, fontSize: 14),
+                ),
+              ],
+            ),
           ),
-        ),
-        IconButton(
-          tooltip: 'Refresh models',
-          onPressed: loading ? null : onRefresh,
-          icon: const Icon(Icons.refresh),
-        ),
-      ],
+          IconButton(
+            tooltip: 'Refresh models',
+            onPressed: loading ? null : onRefresh,
+            icon: const Icon(Icons.refresh, size: 20),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -195,46 +198,44 @@ class _ModelTierCard extends StatelessWidget {
       _ => 'Local model preset.',
     };
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        sizeLabel,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                        ),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      sizeLabel,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle,
-                        style: const TextStyle(color: AppPalette.mutedText),
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(color: AppPalette.mutedText),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            for (final model in models) ...[
-              _ModelRow(
-                model: model,
-                downloading: downloadingModels.contains(model.name),
-                onDownload: () => onDownload(model),
               ),
-              if (model != models.last) const SizedBox(height: 10),
             ],
+          ),
+          const SizedBox(height: 16),
+          for (final model in models) ...[
+            _ModelRow(
+              model: model,
+              downloading: downloadingModels.contains(model.name),
+              onDownload: () => onDownload(model),
+            ),
+            if (model != models.last) const SizedBox(height: 12),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -258,7 +259,7 @@ class _ModelRow extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: AppPalette.panel,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppPalette.border),
       ),
       child: Padding(
@@ -266,16 +267,15 @@ class _ModelRow extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 42,
-              height: 42,
+              width: 38,
+              height: 38,
               decoration: BoxDecoration(
-                color:
-                    isChat ? AppPalette.frostedBlue : AppPalette.panel,
-                borderRadius: BorderRadius.circular(12),
+                color: isChat ? AppPalette.dustGrey : AppPalette.panel,
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 isChat ? Icons.chat_bubble_outline : Icons.dataset_outlined,
-                color: AppPalette.richCerulean,
+                color: AppPalette.gunmetal,
               ),
             ),
             const SizedBox(width: 12),

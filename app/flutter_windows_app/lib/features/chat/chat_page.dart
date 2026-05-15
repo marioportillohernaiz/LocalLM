@@ -155,17 +155,17 @@ class _ChatPageState extends State<ChatPage> {
 
     return Container(
       color: AppPalette.surface,
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          children: [
-            _ChatHeader(
-              loading: loadingSources,
-              onRefresh: loadSources,
-            ),
-            const SizedBox(height: 22),
-            if (labels.isNotEmpty)
-              _LabelSelector(
+      child: Column(
+        children: [
+          _ChatHeader(loading: loadingSources, onRefresh: loadSources),
+          if (labels.isNotEmpty)
+            Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: AppPalette.border)),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+              child: _LabelSelector(
                 labels: labels,
                 selectedLabels: selectedLabels,
                 onChanged: (label, selected) {
@@ -178,105 +178,86 @@ class _ChatPageState extends State<ChatPage> {
                   });
                 },
               ),
-            if (errorMessage != null) ...[
-              const SizedBox(height: 16),
-              _ErrorBanner(message: errorMessage!),
-            ],
-            const SizedBox(height: 16),
-            Expanded(
-              child: response == null
-                  ? const _EmptyChat()
-                  : ChatAnswerView(response: response!),
             ),
-            const SizedBox(height: 16),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: _Composer(
-                    controller: questionController,
-                    asking: asking,
-                    hasModels: models.isNotEmpty,
-                    onAsk: ask,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                SizedBox(
-                  height: 64,
-                  child: Center(
-                    child: ModelDropdown(
-                      models: models,
-                      selectedModel: selectedModel,
-                      loading: loadingModels,
-                      tooltip: 'Answer model',
-                      onChanged: (model) {
-                        setState(() {
-                          selectedModel = model;
-                        });
-                      },
-                    ),
-                  ),
-                ),
-              ],
+          if (errorMessage != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(32, 16, 32, 0),
+              child: _ErrorBanner(message: errorMessage!),
             ),
-          ],
-        ),
+          Expanded(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 768),
+                child: response == null
+                    ? const _EmptyChat()
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: ChatAnswerView(response: response!),
+                      ),
+              ),
+            ),
+          ),
+          _InputDock(
+            controller: questionController,
+            asking: asking,
+            loadingModels: loadingModels,
+            models: models,
+            selectedModel: selectedModel,
+            onModelChanged: (model) {
+              setState(() {
+                selectedModel = model;
+              });
+            },
+            onAsk: ask,
+          ),
+        ],
       ),
     );
   }
 }
 
 class _ChatHeader extends StatelessWidget {
-  const _ChatHeader({
-    required this.loading,
-    required this.onRefresh,
-  });
+  const _ChatHeader({required this.loading, required this.onRefresh});
 
   final bool loading;
   final VoidCallback onRefresh;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Chat',
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0,
+    return Container(
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppPalette.border)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+      child: Row(
+        children: [
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Chat',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0,
+                  ),
                 ),
-              ),
-              SizedBox(height: 4),
-              Text(
-                'Ask questions across your indexed local sources.',
-                style: TextStyle(color: AppPalette.mutedText),
-              ),
-            ],
+                SizedBox(height: 2),
+                Text(
+                  'Ask questions across your indexed local sources.',
+                  style: TextStyle(color: AppPalette.mutedText, fontSize: 14),
+                ),
+              ],
+            ),
           ),
-        ),
-        IconButton(
-          tooltip: 'Refresh labels',
-          onPressed: loading ? null : onRefresh,
-          icon: const Icon(Icons.refresh),
-        ),
-      ],
-    );
-  }
-}
-
-class _LogoMark extends StatelessWidget {
-  const _LogoMark();
-
-  @override
-  Widget build(BuildContext context) {
-    return const LocalLmLogo(
-      size: 64,
-      color: AppPalette.text,
+          IconButton(
+            tooltip: 'Refresh labels',
+            onPressed: loading ? null : onRefresh,
+            icon: const Icon(Icons.refresh, size: 20),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -294,28 +275,117 @@ class _LabelSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          for (final label in labels)
-            FilterChip(
-              label: Text(label),
-              selected: selectedLabels.contains(label),
-              showCheckmark: false,
-              avatar: selectedLabels.contains(label)
-                  ? const Icon(Icons.check, size: 16)
-                  : null,
-              selectedColor: AppPalette.frostedBlue,
-              side: const BorderSide(color: AppPalette.border),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(999),
-              ),
-              onSelected: (selected) => onChanged(label, selected),
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final label in labels)
+          FilterChip(
+            label: Text(label),
+            selected: selectedLabels.contains(label),
+            showCheckmark: false,
+            avatar: selectedLabels.contains(label)
+                ? const Icon(Icons.check, size: 14)
+                : null,
+            selectedColor: AppPalette.dustGrey,
+            side: const BorderSide(color: AppPalette.border),
+            labelStyle: const TextStyle(fontSize: 13),
+            visualDensity: VisualDensity.compact,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(999),
             ),
-        ],
+            onSelected: (selected) => onChanged(label, selected),
+          ),
+      ],
+    );
+  }
+}
+
+class _EmptyChat extends StatelessWidget {
+  const _EmptyChat();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            LocalLmLogo(size: 48),
+            SizedBox(width: 14),
+            Text(
+              'LocalLM',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+        SizedBox(height: 14),
+        Text(
+          'Ask questions across your indexed local sources.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: AppPalette.mutedText, height: 1.4),
+        ),
+      ],
+    );
+  }
+}
+
+class _InputDock extends StatelessWidget {
+  const _InputDock({
+    required this.controller,
+    required this.asking,
+    required this.loadingModels,
+    required this.models,
+    required this.selectedModel,
+    required this.onModelChanged,
+    required this.onAsk,
+  });
+
+  final TextEditingController controller;
+  final bool asking;
+  final bool loadingModels;
+  final List<String> models;
+  final String? selectedModel;
+  final ValueChanged<String?> onModelChanged;
+  final VoidCallback onAsk;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: Color.fromARGB(255, 255, 255, 255),
+        border: Border(top: BorderSide(color: AppPalette.border)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 768),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: _Composer(
+                  controller: controller,
+                  asking: asking,
+                  hasModels: models.isNotEmpty,
+                  onAsk: onAsk,
+                ),
+              ),
+              const SizedBox(width: 12),
+              ModelDropdown(
+                models: models,
+                selectedModel: selectedModel,
+                loading: loadingModels,
+                tooltip: 'Answer model',
+                maxWidth: 180,
+                onChanged: onModelChanged,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -338,34 +408,28 @@ class _Composer extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppPalette.panel,
-        borderRadius: BorderRadius.circular(24),
+        color: AppPalette.surface,
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppPalette.border),
-        boxShadow: const [
-          BoxShadow(
-            color: AppPalette.shadow,
-            blurRadius: 22,
-            offset: Offset(0, 8),
-          ),
-        ],
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(18, 8, 8, 8),
+        padding: const EdgeInsets.fromLTRB(14, 4, 6, 4),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
               child: TextField(
                 controller: controller,
                 minLines: 1,
-                maxLines: 5,
+                maxLines: 4,
+                style: const TextStyle(fontSize: 14),
                 decoration: const InputDecoration(
-                  hintText: 'Ask anything about your local files',
+                  hintText: 'Ask a question about your sources...',
                   border: InputBorder.none,
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,
                   filled: false,
-                  contentPadding: EdgeInsets.symmetric(vertical: 12),
+                  contentPadding: EdgeInsets.symmetric(vertical: 11),
                 ),
                 onSubmitted: (_) {
                   if (hasModels && !asking) {
@@ -375,8 +439,8 @@ class _Composer extends StatelessWidget {
               ),
             ),
             SizedBox(
-              width: 42,
-              height: 42,
+              width: 34,
+              height: 34,
               child: IconButton.filled(
                 tooltip: !hasModels
                     ? 'Install an answer model first'
@@ -385,49 +449,22 @@ class _Composer extends StatelessWidget {
                         : 'Send',
                 onPressed: asking || !hasModels ? null : onAsk,
                 style: IconButton.styleFrom(
-                  backgroundColor: AppPalette.richCerulean,
+                  backgroundColor: AppPalette.gunmetal,
                   foregroundColor: Colors.white,
-                  disabledBackgroundColor: AppPalette.frostedBlue,
+                  disabledBackgroundColor: AppPalette.dustGrey,
+                  padding: EdgeInsets.zero,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 icon: asking
                     ? const SizedBox(
-                        width: 18,
-                        height: 18,
+                        width: 16,
+                        height: 16,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Icon(Icons.arrow_upward, size: 20),
+                    : const Icon(Icons.send, size: 17),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _EmptyChat extends StatelessWidget {
-  const _EmptyChat();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 560),
-        child: const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _LogoMark(),
-            SizedBox(height: 18),
-            Text(
-              'How can I help with your files?',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Choose one or more source labels, then ask a question. Answers are generated from your indexed local documents.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppPalette.mutedText, height: 1.4),
             ),
           ],
         ),
@@ -448,7 +485,7 @@ class _ErrorBanner extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.errorContainer,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
         message,

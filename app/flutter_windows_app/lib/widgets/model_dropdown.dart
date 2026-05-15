@@ -41,7 +41,7 @@ class ModelDropdown extends StatelessWidget {
             border: Border.all(color: AppPalette.border),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: selectedModel,
@@ -52,9 +52,8 @@ class ModelDropdown extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 style: TextStyle(
-                  color: models.isEmpty
-                      ? AppPalette.mutedText
-                      : AppPalette.text,
+                  color:
+                      models.isEmpty ? AppPalette.mutedText : AppPalette.text,
                   fontSize: 13,
                 ),
                 items: [

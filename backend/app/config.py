@@ -1,4 +1,5 @@
 import os
+import platform
 import sys
 from pathlib import Path
 
@@ -8,6 +9,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 def _default_data_dir() -> Path:
     if getattr(sys, "frozen", False):
+        if platform.system() == "Darwin":
+            return Path.home() / "Library" / "Application Support" / "LocalLM" / "data"
+
         local_app_data = os.getenv("LOCALAPPDATA")
         if local_app_data:
             return Path(local_app_data) / "LocalLM" / "data"

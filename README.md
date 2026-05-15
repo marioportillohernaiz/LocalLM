@@ -5,7 +5,7 @@
 <h1 align="center">LocalLM</h1>
 
 <p align="center">
-  A local-first Windows desktop app for asking questions over your own files and folders.
+  A local-first desktop app for asking questions over your own files and folders.
 </p>
 
 <p align="center">
@@ -27,9 +27,11 @@
 
 ---
 
-LocalLM indexes labelled local files, retrieves the most relevant chunks, and generates answers with local Ollama models. Your documents stay on your machine: the desktop app talks to a local FastAPI backend, which stores metadata in SQLite and embeddings in ChromaDB. The packaged Windows app stores this data under `%LOCALAPPDATA%\LocalLM\data`.
+LocalLM indexes labelled local files, retrieves the most relevant chunks, and generates answers with local Ollama models. Your documents stay on your machine: the desktop app talks to a local FastAPI backend, which stores metadata in SQLite and embeddings in ChromaDB. The packaged Windows app stores data under `%LOCALAPPDATA%\LocalLM\data`; the packaged macOS app stores data under `~/Library/Application Support/LocalLM/data`.
 
 ## Install Instructions
+
+### Windows
 
 Open PowerShell and run:
 
@@ -37,7 +39,15 @@ Open PowerShell and run:
 irm https://raw.githubusercontent.com/marioportillohernaiz/LocalLM/main/install.ps1 | iex
 ```
 
-This installs the LocalLM Windows app and local backend. Models are not included in the app download; open LocalLM, go to Settings, and download the chat and embedding models you want to use.
+### macOS
+
+Open Terminal and run:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/marioportillohernaiz/LocalLM/main/install-macos.sh | bash
+```
+
+These install the LocalLM desktop app and local backend for your operating system. Models are not included in the app download; open LocalLM, go to Settings, and download the chat and embedding models you want to use.
 
 ## Screenshots
 
@@ -87,7 +97,7 @@ The desktop app handles source selection, labels, questions, and display. The Py
 ### Requirements
 
 - Ollama installed and running: https://ollama.com/download
-- Windows 10 or newer.
+- Windows 10 or newer, or macOS 12 or newer.
 
 Install models from the LocalLM Settings screen after launching the app.
 
@@ -123,9 +133,9 @@ Expected response:
 {"status":"ok"}
 ```
 
-### Run The Windows App
+### Run The Desktop App
 
-In a second terminal:
+In a second terminal on Windows:
 
 ```powershell
 cd app\flutter_windows_app
@@ -133,11 +143,19 @@ flutter pub get
 flutter run -d windows
 ```
 
+Or on macOS:
+
+```bash
+cd app/flutter_windows_app
+flutter pub get
+flutter run -d macos
+```
+
 ## Configuration
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `LOCALLM_DATA_DIR` | Source: `backend/data`; packaged Windows app: `%LOCALAPPDATA%\LocalLM\data` | SQLite and ChromaDB storage location |
+| `LOCALLM_DATA_DIR` | Source: `backend/data`; packaged Windows app: `%LOCALAPPDATA%\LocalLM\data`; packaged macOS app: `~/Library/Application Support/LocalLM/data` | SQLite and ChromaDB storage location |
 | `LOCALLM_LLM_MODEL` | `qwen2.5:1.5b` | Ollama model used for answers |
 | `LOCALLM_EMBEDDING_MODEL` | `qwen3-embedding:0.6b` | Ollama model used for embeddings |
 | `LOCALLM_CHUNK_SIZE_CHARS` | `3000` | Maximum chunk size before embedding |
@@ -154,10 +172,88 @@ python run.py
 
 To keep source and packaged builds on the same data folder, set `LOCALLM_DATA_DIR` before starting the backend:
 
+Windows:
+
 ```powershell
 $env:LOCALLM_DATA_DIR = "$env:LOCALAPPDATA\LocalLM\data"
 python run.py
 ```
+
+macOS:
+
+```bash
+export LOCALLM_DATA_DIR="$HOME/Library/Application Support/LocalLM/data"
+python run.py
+```
+
+## Packaging Releases
+
+Build release packages from the matching operating system.
+
+### Windows package
+
+Run from PowerShell on Windows:
+
+```powershell
+.\scripts\package-windows.ps1
+```
+
+This creates:
+
+```text
+dist\LocalLM-windows-x64.zip
+```
+
+### macOS package
+
+Run from Terminal on a Mac with Xcode and Flutter desktop support:
+
+```bash
+./scripts/package-macos.sh
+```
+
+This creates one of:
+
+```text
+dist/LocalLM-macos-arm64.zip
+dist/LocalLM-macos-x64.zip
+```
+
+The script builds the Flutter macOS app, packages the Python backend with PyInstaller, and includes a launcher script that starts the backend before opening `LocalLM.app`.
+
+### Upload GitHub release assets
+
+Create a GitHub Release, then upload the package files as assets. The installer commands expect these exact filenames:
+
+```text
+LocalLM-windows-x64.zip
+LocalLM-macos-arm64.zip
+LocalLM-macos-x64.zip
+```
+
+Using the GitHub CLI:
+
+```bash
+gh release create v0.1.0 dist/LocalLM-windows-x64.zip dist/LocalLM-macos-arm64.zip --title "LocalLM v0.1.0" --notes "Windows and macOS desktop packages."
+```
+
+If you build both Apple Silicon and Intel macOS packages, upload both macOS ZIPs:
+
+```bash
+gh release upload v0.1.0 dist/LocalLM-macos-x64.zip
+```
+
+Users can then install the latest release with:
+
+```powershell
+irm https://raw.githubusercontent.com/marioportillohernaiz/LocalLM/main/install.ps1 | iex
+```
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/marioportillohernaiz/LocalLM/main/install-macos.sh | bash
+```
+
+Unsigned macOS builds may show a Gatekeeper warning. For broad distribution, sign and notarize the macOS app before uploading it.
 
 ## API
 

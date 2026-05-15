@@ -5,6 +5,7 @@ import '../../models/source.dart';
 import '../../services/api_client.dart';
 import '../../theme/app_palette.dart';
 import '../../widgets/chat_answer_view.dart';
+import '../../widgets/empty_state.dart';
 import '../../widgets/local_lm_logo.dart';
 import '../../widgets/model_dropdown.dart';
 
@@ -306,28 +307,9 @@ class _EmptyChat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            LocalLmLogo(size: 48),
-            SizedBox(width: 14),
-            Text(
-              'LocalLM',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
-        SizedBox(height: 14),
-        Text(
-          'Ask questions across your indexed local sources.',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: AppPalette.mutedText, height: 1.4),
-        ),
-      ],
+    return const EmptyState(
+      icon: LocalLmLogo(size: 96),
+      subtitle: 'Ask questions across your indexed local sources.',
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../models/source.dart';
 import '../../services/api_client.dart';
 import '../../theme/app_palette.dart';
+import '../../widgets/empty_state.dart';
 import '../../widgets/model_dropdown.dart';
 
 class SourcesPage extends StatefulWidget {
@@ -556,31 +557,10 @@ class _EmptySources extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 54,
-            height: 54,
-            decoration: BoxDecoration(
-              color: AppPalette.dustGrey,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Icon(Icons.folder_open_outlined),
-          ),
-          const SizedBox(height: 14),
-          const Text(
-            'No sources yet',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'Add a labelled folder or file to start indexing.',
-            style: TextStyle(color: AppPalette.mutedText),
-          ),
-        ],
-      ),
+    return const EmptyState(
+      icon: EmptyStateIcon(icon: Icons.folder_open_outlined),
+      title: 'No sources yet',
+      subtitle: 'Add a labelled folder or file to start indexing.',
     );
   }
 }

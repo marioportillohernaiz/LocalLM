@@ -4,6 +4,7 @@ import '../../models/chat_history_item.dart';
 import '../../services/api_client.dart';
 import '../../theme/app_palette.dart';
 import '../../widgets/chat_answer_view.dart';
+import '../../widgets/empty_state.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key, required this.apiClient});
@@ -405,31 +406,10 @@ class _SelectHistoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 54,
-            height: 54,
-            decoration: BoxDecoration(
-              color: AppPalette.dustGrey,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(Icons.history_outlined),
-          ),
-          const SizedBox(height: 14),
-          const Text(
-            'Select a conversation',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'Choose a saved question to review its answer and sources.',
-            style: TextStyle(color: AppPalette.mutedText),
-          ),
-        ],
-      ),
+    return const EmptyState(
+      icon: EmptyStateIcon(icon: Icons.history_outlined),
+      title: 'Select a conversation',
+      subtitle: 'Choose a saved question to review its answer and sources.',
     );
   }
 }
@@ -439,31 +419,10 @@ class _EmptyHistory extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 54,
-            height: 54,
-            decoration: BoxDecoration(
-              color: AppPalette.dustGrey,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(Icons.chat_bubble_outline),
-          ),
-          const SizedBox(height: 14),
-          const Text(
-            'No chat history',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'Ask a question to save your first conversation.',
-            style: TextStyle(color: AppPalette.mutedText),
-          ),
-        ],
-      ),
+    return const EmptyState(
+      icon: EmptyStateIcon(icon: Icons.chat_bubble_outline),
+      title: 'No chat history',
+      subtitle: 'Ask a question to save your first conversation.',
     );
   }
 }

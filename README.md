@@ -162,8 +162,8 @@ flutter run -d macos
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `LOCALLM_DATA_DIR` | Source: `backend/data`; packaged Windows app: `%LOCALAPPDATA%\LocalLM\data`; packaged macOS app: `~/Library/Application Support/LocalLM/data` | SQLite and ChromaDB storage location |
-| `LOCALLM_LLM_MODEL` | `qwen2.5:1.5b` | Ollama model used for answers |
-| `LOCALLM_EMBEDDING_MODEL` | `qwen3-embedding:0.6b` | Ollama model used for embeddings |
+| `LOCALLM_LLM_MODEL` | None | Optional fallback Ollama model used for answers when an API caller does not provide one |
+| `LOCALLM_EMBEDDING_MODEL` | None | Optional fallback Ollama model used for embeddings when an API caller does not provide one |
 | `LOCALLM_CHUNK_SIZE_CHARS` | `3000` | Maximum chunk size before embedding |
 | `LOCALLM_CHUNK_OVERLAP_CHARS` | `400` | Overlap between adjacent chunks |
 | `LOCALLM_TOP_K` | `8` | Number of chunks retrieved for each question |

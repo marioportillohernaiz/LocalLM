@@ -1,3 +1,5 @@
+import hashlib
+
 import chromadb
 
 from app.config import CHROMA_DIR, TOP_K
@@ -5,7 +7,8 @@ from app.services.ollama_service import embed_text
 
 
 client = chromadb.PersistentClient(path=str(CHROMA_DIR))
-collection = client.get_or_create_collection(name="local_documents")
+LEGACY_COLLECTION_NAME = "local_documents"
+COLLECTION_PREFIX = "local_documents_"
 
 
 def add_chunk(
@@ -19,7 +22,11 @@ def add_chunk(
     chunk_index: int,
     embedding_model: str | None = None,
 ) -> None:
+    if embedding_model is None:
+        raise ValueError("An embedding model is required")
+
     embedding = embed_text(text, model=embedding_model)
+    collection = _get_collection(embedding_model)
 
     collection.add(
         ids=[chunk_id],
@@ -33,17 +40,30 @@ def add_chunk(
                 "file_name": file_name,
                 "file_path": file_path,
                 "chunk_index": chunk_index,
+                "embedding_model": embedding_model or "",
             }
         ],
     )
 
 
 def delete_document_chunks(document_id: int) -> None:
-    collection.delete(where={"document_id": document_id})
+    for collection in _list_document_collections():
+        try:
+            collection.delete(where={"document_id": document_id})
+        except Exception:
+            continue
 
 
-def search_chunks(question: str, labels: list[str]) -> list[dict]:
-    query_embedding = embed_text(question)
+def search_chunks(
+    question: str,
+    labels: list[str],
+    embedding_model: str | None = None,
+) -> list[dict]:
+    if embedding_model is None:
+        raise ValueError("An embedding model is required")
+
+    query_embedding = embed_text(question, model=embedding_model)
+    collection = _get_collection(embedding_model)
 
     where = None
     if labels:
@@ -70,3 +90,18 @@ def search_chunks(question: str, labels: list[str]) -> list[dict]:
         )
 
     return chunks
+
+
+def _get_collection(embedding_model: str):
+    digest = hashlib.sha256(embedding_model.encode("utf-8")).hexdigest()[:16]
+    return client.get_or_create_collection(name=f"{COLLECTION_PREFIX}{digest}")
+
+
+def _list_document_collections():
+    collections = client.list_collections()
+    result = []
+    for collection in collections:
+        name = collection.name if hasattr(collection, "name") else str(collection)
+        if name == LEGACY_COLLECTION_NAME or name.startswith(COLLECTION_PREFIX):
+            result.append(client.get_or_create_collection(name=name))
+    return result

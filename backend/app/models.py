@@ -14,6 +14,7 @@ class Source(Base):
     path = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     last_indexed_at = Column(DateTime, nullable=True)
+    embedding_model = Column(String, nullable=True)
 
     documents = relationship(
         "Document",

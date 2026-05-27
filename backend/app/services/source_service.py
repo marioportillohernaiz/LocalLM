@@ -4,6 +4,7 @@ from pathlib import Path
 
 from sqlalchemy.orm import Session
 
+from app.config import EMBEDDING_MODEL
 from app.models import Document, Source
 from app.services.chunker import chunk_text
 from app.services.file_scanner import scan_files
@@ -47,6 +48,9 @@ def index_source(
     if source is None:
         raise ValueError("Source not found")
 
+    selected_embedding_model = _clean_model_name(embedding_model) or EMBEDDING_MODEL
+    if selected_embedding_model is None:
+        raise ValueError("Choose an embedding model before indexing sources")
     files = scan_files(source.path)
     indexed_count = 0
     skipped_count = 0
@@ -66,7 +70,7 @@ def index_source(
             .first()
         )
 
-        if existing_indexed and not _clean_model_name(embedding_model):
+        if existing_indexed and source.embedding_model == selected_embedding_model:
             skipped_count += 1
             continue
 
@@ -102,7 +106,7 @@ def index_source(
                         file_name=file_path.name,
                         file_path=file_path_text,
                         chunk_index=chunk_index,
-                        embedding_model=embedding_model,
+                        embedding_model=selected_embedding_model,
                     )
 
                 document.status = "indexed"
@@ -118,6 +122,7 @@ def index_source(
         db.commit()
 
     source.last_indexed_at = datetime.utcnow()
+    source.embedding_model = selected_embedding_model
     db.commit()
 
     return {

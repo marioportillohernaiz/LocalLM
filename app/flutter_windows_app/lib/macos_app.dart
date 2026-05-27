@@ -143,7 +143,13 @@ class _MacSidebar extends StatelessWidget {
                 children: [
                   Icon(CupertinoIcons.add, size: 18),
                   SizedBox(width: 6),
-                  Text('New chat'),
+                  Text(
+                    'New chat',
+                    style: TextStyle(
+                      color: CupertinoColors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ],
               ),
             ),

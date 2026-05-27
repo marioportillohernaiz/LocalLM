@@ -5,6 +5,7 @@ class Source {
     required this.path,
     required this.createdAt,
     this.lastIndexedAt,
+    this.embeddingModel,
   });
 
   final int id;
@@ -12,6 +13,7 @@ class Source {
   final String path;
   final DateTime createdAt;
   final DateTime? lastIndexedAt;
+  final String? embeddingModel;
 
   factory Source.fromJson(Map<String, dynamic> json) {
     return Source(
@@ -22,6 +24,7 @@ class Source {
       lastIndexedAt: json['last_indexed_at'] == null
           ? null
           : DateTime.parse(json['last_indexed_at'] as String),
+      embeddingModel: json['embedding_model'] as String?,
     );
   }
 }

@@ -145,6 +145,8 @@ def pull_catalog_model(model: str) -> str:
 
 def embed_text(text: str, model: str | None = None) -> list[float]:
     selected_model = _clean_model_name(model) or EMBEDDING_MODEL
+    if selected_model is None:
+        raise ValueError("An embedding model is required")
     try:
         response = ollama.embeddings(model=selected_model, prompt=text)
     except ollama.ResponseError as exc:
@@ -154,6 +156,8 @@ def embed_text(text: str, model: str | None = None) -> list[float]:
 
 def generate_answer(prompt: str, model: str | None = None) -> str:
     selected_model = _clean_model_name(model) or LLM_MODEL
+    if selected_model is None:
+        raise ValueError("A chat model is required")
     try:
         response = ollama.chat(
             model=selected_model,

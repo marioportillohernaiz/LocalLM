@@ -144,6 +144,11 @@ UI implementation details.
   is responsible for launching the local backend.
 - Model download and installed-state behavior belongs in shared API/client
   methods; platform pages only choose the visual controls.
+- Chat and indexing must use the models selected by the user. The backend must
+  not silently fall back to hardcoded chat or embedding models.
+- Embedding models are independent from chat models. Sources are indexed with a
+  selected embedding model, and chat retrieval must query with that same
+  embedding model while answers use the selected chat model.
 - If one platform adds or removes a user-facing workflow, review the matching
   platform page before release.
 

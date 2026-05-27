@@ -14,6 +14,7 @@ class SourceResponse(BaseModel):
     path: str
     created_at: datetime
     last_indexed_at: datetime | None = None
+    embedding_model: str | None = None
 
     class Config:
         orm_mode = True

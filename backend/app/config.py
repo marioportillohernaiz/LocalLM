@@ -24,8 +24,8 @@ DATA_DIR = Path(os.getenv("LOCALLM_DATA_DIR", _default_data_dir()))
 SQLITE_PATH = DATA_DIR / "app.db"
 CHROMA_DIR = DATA_DIR / "chroma"
 
-LLM_MODEL = os.getenv("LOCALLM_LLM_MODEL", "qwen2.5:1.5b")
-EMBEDDING_MODEL = os.getenv("LOCALLM_EMBEDDING_MODEL", "qwen3-embedding:0.6b")
+LLM_MODEL = os.getenv("LOCALLM_LLM_MODEL")
+EMBEDDING_MODEL = os.getenv("LOCALLM_EMBEDDING_MODEL")
 
 CHUNK_SIZE_CHARS = int(os.getenv("LOCALLM_CHUNK_SIZE_CHARS", "3000"))
 CHUNK_OVERLAP_CHARS = int(os.getenv("LOCALLM_CHUNK_OVERLAP_CHARS", "400"))

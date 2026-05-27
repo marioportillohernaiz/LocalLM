@@ -23,7 +23,7 @@ BACKEND_EXE="$BACKEND_DIR/dist/locallm-backend"
 echo "Building Flutter macOS app..."
 cd "$FLUTTER_APP_DIR"
 flutter config --enable-macos-desktop
-flutter pub get
+flutter pub get --enforce-lockfile
 flutter build macos --release
 
 echo "Building backend executable..."

@@ -56,6 +56,59 @@ class MacPage extends StatelessWidget {
   }
 }
 
+class MacPageHeader extends StatelessWidget {
+  const MacPageHeader({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    this.trailing,
+  });
+
+  final String title;
+  final String subtitle;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: AppPalette.surface,
+        border: Border(bottom: BorderSide(color: AppPalette.border)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    color: AppPalette.mutedText,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (trailing != null) trailing!,
+        ],
+      ),
+    );
+  }
+}
+
 class MacCard extends StatelessWidget {
   const MacCard({super.key, required this.child});
 
@@ -128,7 +181,51 @@ class MacPrimaryButton extends StatelessWidget {
       disabledColor: CupertinoColors.systemGrey4,
       borderRadius: BorderRadius.circular(8),
       onPressed: onPressed,
-      child: Text(label),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: CupertinoColors.white,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+class MacIconPrimaryButton extends StatelessWidget {
+  const MacIconPrimaryButton({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.onPressed,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoButton(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+      color: AppPalette.gunmetal,
+      disabledColor: CupertinoColors.systemGrey4,
+      borderRadius: BorderRadius.circular(999),
+      onPressed: onPressed,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 18, color: CupertinoColors.white),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: const TextStyle(
+              color: CupertinoColors.white,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -159,6 +256,50 @@ class MacSecondaryButton extends StatelessWidget {
           color: destructive
               ? CupertinoColors.destructiveRed
               : AppPalette.gunmetal,
+        ),
+      ),
+    );
+  }
+}
+
+class MacIconSecondaryButton extends StatelessWidget {
+  const MacIconSecondaryButton({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.onPressed,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppPalette.surface,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: AppPalette.gunmetal),
+      ),
+      child: CupertinoButton(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        disabledColor: CupertinoColors.systemGrey5,
+        borderRadius: BorderRadius.circular(999),
+        onPressed: onPressed,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 18, color: AppPalette.gunmetal),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                color: AppPalette.gunmetal,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -229,6 +370,95 @@ class MacPill extends StatelessWidget {
           color: selected ? CupertinoColors.white : AppPalette.text,
           fontSize: 13,
           fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+        ),
+      ),
+    );
+  }
+}
+
+class MacModelPicker extends StatelessWidget {
+  const MacModelPicker({
+    super.key,
+    required this.models,
+    required this.selectedModel,
+    required this.loading,
+    required this.onChanged,
+    this.width = 220,
+  });
+
+  final List<String> models;
+  final String? selectedModel;
+  final bool loading;
+  final ValueChanged<String?> onChanged;
+  final double width;
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading) {
+      return const SizedBox(
+        width: 26,
+        height: 26,
+        child: CupertinoActivityIndicator(),
+      );
+    }
+
+    final enabled = models.isNotEmpty;
+    final value = selectedModel ?? (enabled ? models.first : 'No models');
+
+    return CupertinoButton(
+      padding: EdgeInsets.zero,
+      onPressed: enabled
+          ? () async {
+              final selected = await showCupertinoModalPopup<String>(
+                context: context,
+                builder: (context) {
+                  return CupertinoActionSheet(
+                    actions: [
+                      for (final model in models)
+                        CupertinoActionSheetAction(
+                          onPressed: () => Navigator.of(context).pop(model),
+                          child: Text(model),
+                        ),
+                    ],
+                    cancelButton: CupertinoActionSheetAction(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Cancel'),
+                    ),
+                  );
+                },
+              );
+              if (selected != null) {
+                onChanged(selected);
+              }
+            }
+          : null,
+      child: Container(
+        width: width,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppPalette.panel,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: AppPalette.border),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: enabled ? AppPalette.text : AppPalette.mutedText,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(
+              CupertinoIcons.chevron_down,
+              size: 15,
+              color: AppPalette.gunmetal,
+            ),
+          ],
         ),
       ),
     );

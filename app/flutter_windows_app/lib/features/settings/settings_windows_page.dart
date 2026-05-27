@@ -5,14 +5,15 @@ import '../../models/model_catalog_item.dart';
 import '../../services/api_providers.dart';
 import '../../theme/app_palette.dart';
 
-class SettingsPage extends ConsumerStatefulWidget {
-  const SettingsPage({super.key});
+class SettingsWindowsPage extends ConsumerStatefulWidget {
+  const SettingsWindowsPage({super.key});
 
   @override
-  ConsumerState<SettingsPage> createState() => _SettingsPageState();
+  ConsumerState<SettingsWindowsPage> createState() =>
+      _SettingsWindowsPageState();
 }
 
-class _SettingsPageState extends ConsumerState<SettingsPage> {
+class _SettingsWindowsPageState extends ConsumerState<SettingsWindowsPage> {
   List<ModelCatalogItem> models = [];
   final downloadingModels = <String>{};
   bool loading = false;

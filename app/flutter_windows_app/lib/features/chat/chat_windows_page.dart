@@ -9,16 +9,16 @@ import '../../widgets/empty_state.dart';
 import '../../widgets/local_lm_logo.dart';
 import '../../widgets/model_dropdown.dart';
 
-class ChatPage extends StatefulWidget {
-  const ChatPage({super.key, required this.apiClient});
+class ChatWindowsPage extends StatefulWidget {
+  const ChatWindowsPage({super.key, required this.apiClient});
 
   final ApiClient apiClient;
 
   @override
-  State<ChatPage> createState() => _ChatPageState();
+  State<ChatWindowsPage> createState() => _ChatWindowsPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatWindowsPageState extends State<ChatWindowsPage> {
   final questionController = TextEditingController();
   final selectedLabels = <String>{};
   List<Source> sources = [];

@@ -7,16 +7,16 @@ import '../../theme/app_palette.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/model_dropdown.dart';
 
-class SourcesPage extends StatefulWidget {
-  const SourcesPage({super.key, required this.apiClient});
+class SourcesWindowsPage extends StatefulWidget {
+  const SourcesWindowsPage({super.key, required this.apiClient});
 
   final ApiClient apiClient;
 
   @override
-  State<SourcesPage> createState() => _SourcesPageState();
+  State<SourcesWindowsPage> createState() => _SourcesWindowsPageState();
 }
 
-class _SourcesPageState extends State<SourcesPage> {
+class _SourcesWindowsPageState extends State<SourcesWindowsPage> {
   final labelController = TextEditingController();
   final indexingSourceIds = <int>{};
   List<Source> sources = [];

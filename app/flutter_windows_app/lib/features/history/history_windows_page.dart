@@ -6,16 +6,16 @@ import '../../theme/app_palette.dart';
 import '../../widgets/chat_answer_view.dart';
 import '../../widgets/empty_state.dart';
 
-class HistoryPage extends StatefulWidget {
-  const HistoryPage({super.key, required this.apiClient});
+class HistoryWindowsPage extends StatefulWidget {
+  const HistoryWindowsPage({super.key, required this.apiClient});
 
   final ApiClient apiClient;
 
   @override
-  State<HistoryPage> createState() => _HistoryPageState();
+  State<HistoryWindowsPage> createState() => _HistoryWindowsPageState();
 }
 
-class _HistoryPageState extends State<HistoryPage> {
+class _HistoryWindowsPageState extends State<HistoryWindowsPage> {
   List<ChatHistoryItem> items = [];
   ChatHistoryItem? selectedItem;
   bool loading = false;

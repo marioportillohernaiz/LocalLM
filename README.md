@@ -92,6 +92,13 @@ Flutter Windows app
 
 The desktop app handles source selection, labels, questions, and display. The Python backend owns file parsing, chunking, embedding, retrieval, history storage, and LLM calls.
 
+Architecture decisions:
+
+- [ADR 0001: Local RAG Desktop Architecture](docs/architecture-decisions/0001-local-rag-desktop-architecture.md)
+- [ADR 0002: Windows Spike Code Structure](docs/architecture-decisions/0002-windows-spike-code-structure.md)
+- [ADR 0003: macOS Spike Code Structure](docs/architecture-decisions/0003-macos-spike-code-structure.md)
+- [ADR 0004: Flutter Platform Feature Split](docs/architecture-decisions/0004-flutter-platform-feature-split.md)
+
 ## Quick Start
 
 ### Requirements
@@ -116,9 +123,8 @@ Requirements:
 ```powershell
 cd backend
 python -m venv .venv
-.\.venv\Scripts\activate
-pip install -r requirements.txt
-python run.py
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe run.py
 ```
 
 Check the API:
@@ -186,75 +192,6 @@ export LOCALLM_DATA_DIR="$HOME/Library/Application Support/LocalLM/data"
 python run.py
 ```
 
-## Packaging Releases
-
-Build release packages from the matching operating system.
-
-### Windows package
-
-Run from PowerShell on Windows:
-
-```powershell
-.\scripts\package-windows.ps1
-```
-
-This creates:
-
-```text
-dist\LocalLM-windows-x64.zip
-```
-
-### macOS package
-
-Run from Terminal on a Mac with Xcode and Flutter desktop support:
-
-```bash
-./scripts/package-macos.sh
-```
-
-This creates one of:
-
-```text
-dist/LocalLM-macos-arm64.zip
-dist/LocalLM-macos-x64.zip
-```
-
-The script builds the Flutter macOS app, packages the Python backend with PyInstaller, and includes a launcher script that starts the backend before opening `LocalLM.app`.
-
-### Upload GitHub release assets
-
-Create a GitHub Release, then upload the package files as assets. The installer commands expect these exact filenames:
-
-```text
-LocalLM-windows-x64.zip
-LocalLM-macos-arm64.zip
-LocalLM-macos-x64.zip
-```
-
-Using the GitHub CLI:
-
-```bash
-gh release create v0.1.0 dist/LocalLM-windows-x64.zip dist/LocalLM-macos-arm64.zip --title "LocalLM v0.1.0" --notes "Windows and macOS desktop packages."
-```
-
-If you build both Apple Silicon and Intel macOS packages, upload both macOS ZIPs:
-
-```bash
-gh release upload v0.1.0 dist/LocalLM-macos-x64.zip
-```
-
-Users can then install the latest release with:
-
-```powershell
-irm https://raw.githubusercontent.com/marioportillohernaiz/LocalLM/main/install.ps1 | iex
-```
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/marioportillohernaiz/LocalLM/main/install-macos.sh | bash
-```
-
-Unsigned macOS builds may show a Gatekeeper warning. For broad distribution, sign and notarize the macOS app before uploading it.
-
 ## API
 
 | Method | Path | Description |
@@ -271,6 +208,8 @@ Unsigned macOS builds may show a Gatekeeper warning. For broad distribution, sig
 ```text
 backend/                 FastAPI backend and local RAG services
 app/flutter_windows_app/ Flutter Windows desktop client
+docs/architecture-decisions/
+                         Architecture decision records
 docs/screenshots/        README logo and screenshots
 files/                   Local sample files used during development
 ```

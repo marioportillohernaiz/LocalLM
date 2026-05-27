@@ -22,7 +22,24 @@ ZIP_PATH="$TMP_DIR/$ZIP_NAME"
 EXTRACT_DIR="$TMP_DIR/extract"
 
 echo "Downloading LocalLM for macOS ($PACKAGE_ARCH)..."
-curl -fL "$DOWNLOAD_URL" -o "$ZIP_PATH"
+if ! curl -fL "$DOWNLOAD_URL" -o "$ZIP_PATH"; then
+  cat >&2 <<EOF
+
+Could not download $ZIP_NAME from the latest GitHub release.
+
+The macOS installer downloads a prebuilt release asset from:
+$DOWNLOAD_URL
+
+For an Apple Silicon MacBook Pro, the latest GitHub release must include:
+  LocalLM-macos-arm64.zip
+
+Create it by running the "Build macOS release" GitHub Actions workflow, or by
+running ./scripts/package-macos.sh on an Apple Silicon Mac and uploading the ZIP
+to a GitHub release.
+
+EOF
+  exit 1
+fi
 
 echo "Installing LocalLM..."
 rm -rf "$INSTALL_DIR"

@@ -188,31 +188,10 @@ class _MacChatPageState extends State<MacChatPage> {
               constraints: const BoxConstraints(maxWidth: 768),
               child: response == null
                   ? const _EmptyChat()
-                  : ListView(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      children: [
-                        MacCard(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                response!.question,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                response!.answer,
-                                style: const TextStyle(height: 1.35),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        MacSourcesUsed(sources: response!.sources),
-                      ],
+                  : MacConversationPreview(
+                      question: response!.question,
+                      answer: response!.answer,
+                      sources: response!.sources,
                     ),
             ),
           ),

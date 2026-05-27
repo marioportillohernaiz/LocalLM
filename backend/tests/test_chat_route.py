@@ -10,6 +10,22 @@ from app.services.ollama_service import OllamaModelError
 
 
 client = TestClient(app)
+TEST_SOURCE_LABELS = {
+    "EmbeddingModelSource",
+    "SmallEmbeddingSource",
+    "LargeEmbeddingSource",
+    "SourceWithoutStoredEmbeddingModel",
+}
+
+
+def cleanup_test_sources() -> None:
+    db = SessionLocal()
+    try:
+        for label in TEST_SOURCE_LABELS:
+            db.query(Source).filter(Source.label == label).delete()
+        db.commit()
+    finally:
+        db.close()
 
 
 def test_ask_returns_service_unavailable_for_missing_ollama_model(monkeypatch):
@@ -65,17 +81,21 @@ def test_ask_returns_installed_embedding_model_hint(monkeypatch):
 
 
 def test_ask_uses_source_embedding_model_for_retrieval(monkeypatch):
+    cleanup_test_sources()
     db = SessionLocal()
-    source = Source(
-        label="EmbeddingModelSource",
-        path="C:/tmp",
-        embedding_model="qwen3-embedding:4b",
-    )
-    db.add(source)
-    db.commit()
-    db.close()
+    try:
+        source = Source(
+            label="EmbeddingModelSource",
+            path="C:/tmp",
+            embedding_model="qwen3-embedding:4b",
+        )
+        db.add(source)
+        db.commit()
+    finally:
+        db.close()
 
     searched_with = {}
+
     def fake_search_chunks(question, labels, embedding_model=None):
         searched_with["embedding_model"] = embedding_model
         return []
@@ -98,26 +118,30 @@ def test_ask_uses_source_embedding_model_for_retrieval(monkeypatch):
 
     assert response.status_code == 200
     assert searched_with["embedding_model"] == "qwen3-embedding:4b"
+    cleanup_test_sources()
 
 
 def test_ask_searches_each_selected_embedding_model(monkeypatch):
+    cleanup_test_sources()
     db = SessionLocal()
-    db.add(
-        Source(
-            label="SmallEmbeddingSource",
-            path="C:/tmp/small",
-            embedding_model="qwen3-embedding:0.6b",
+    try:
+        db.add(
+            Source(
+                label="SmallEmbeddingSource",
+                path="C:/tmp/small",
+                embedding_model="qwen3-embedding:0.6b",
+            )
         )
-    )
-    db.add(
-        Source(
-            label="LargeEmbeddingSource",
-            path="C:/tmp/large",
-            embedding_model="qwen3-embedding:4b",
+        db.add(
+            Source(
+                label="LargeEmbeddingSource",
+                path="C:/tmp/large",
+                embedding_model="qwen3-embedding:4b",
+            )
         )
-    )
-    db.commit()
-    db.close()
+        db.commit()
+    finally:
+        db.close()
 
     searches = []
 
@@ -140,3 +164,4 @@ def test_ask_searches_each_selected_embedding_model(monkeypatch):
     assert response.status_code == 200
     assert (["SmallEmbeddingSource"], "qwen3-embedding:0.6b") in searches
     assert (["LargeEmbeddingSource"], "qwen3-embedding:4b") in searches
+    cleanup_test_sources()

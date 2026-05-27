@@ -206,6 +206,22 @@ class _MacSourcesPageState extends State<MacSourcesPage> {
     }
   }
 
+  Future<void> deleteSourceIndex(Source source) async {
+    setState(() {
+      error = null;
+    });
+
+    try {
+      await widget.apiClient.deleteSource(source.id);
+      await loadSources();
+    } catch (exception) {
+      if (!mounted) return;
+      setState(() {
+        error = cleanMacError(exception);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -276,6 +292,8 @@ class _MacSourcesPageState extends State<MacSourcesPage> {
                       source: source,
                       indexing: indexing,
                       onReindex: indexing ? null : () => indexSource(source),
+                      onDelete:
+                          indexing ? null : () => deleteSourceIndex(source),
                     ),
                   );
                 }),
@@ -362,11 +380,13 @@ class _MacSourceCard extends StatelessWidget {
     required this.source,
     required this.indexing,
     required this.onReindex,
+    required this.onDelete,
   });
 
   final Source source;
   final bool indexing;
   final VoidCallback? onReindex;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -414,20 +434,39 @@ class _MacSourceCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          CupertinoButton(
-            padding: EdgeInsets.zero,
-            minimumSize: const Size(34, 34),
-            color: AppPalette.alabasterGrey,
-            disabledColor: AppPalette.alabasterGrey,
-            borderRadius: BorderRadius.circular(8),
-            onPressed: onReindex,
-            child: indexing
-                ? const CupertinoActivityIndicator()
-                : const Icon(
-                    CupertinoIcons.arrow_2_circlepath,
-                    color: AppPalette.gunmetal,
-                    size: 18,
-                  ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                minimumSize: const Size(34, 34),
+                color: AppPalette.alabasterGrey,
+                disabledColor: AppPalette.alabasterGrey,
+                borderRadius: BorderRadius.circular(8),
+                onPressed: onReindex,
+                child: indexing
+                    ? const CupertinoActivityIndicator()
+                    : const Icon(
+                        CupertinoIcons.arrow_2_circlepath,
+                        color: AppPalette.gunmetal,
+                        size: 18,
+                      ),
+              ),
+              const SizedBox(width: 8),
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                minimumSize: const Size(34, 34),
+                color: AppPalette.alabasterGrey,
+                disabledColor: AppPalette.alabasterGrey,
+                borderRadius: BorderRadius.circular(8),
+                onPressed: onDelete,
+                child: const Icon(
+                  CupertinoIcons.delete,
+                  color: AppPalette.gunmetal,
+                  size: 18,
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -220,6 +220,29 @@ class _SourcesWindowsPageState extends State<SourcesWindowsPage> {
     }
   }
 
+  Future<void> deleteSourceIndex(Source source) async {
+    setState(() {
+      errorMessage = null;
+    });
+
+    try {
+      await widget.apiClient.deleteSource(source.id);
+      await loadSources();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Removed index for ${source.label}')),
+        );
+      }
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        errorMessage = error.toString();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -283,6 +306,8 @@ class _SourcesWindowsPageState extends State<SourcesWindowsPage> {
                         source: source,
                         indexing: indexing,
                         onReindex: indexing ? null : () => reindex(source),
+                        onDelete:
+                            indexing ? null : () => deleteSourceIndex(source),
                       ),
                     );
                   }),
@@ -437,11 +462,13 @@ class _SourceCard extends StatelessWidget {
     required this.source,
     required this.indexing,
     required this.onReindex,
+    required this.onDelete,
   });
 
   final Source source;
   final bool indexing;
   final VoidCallback? onReindex;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -473,23 +500,37 @@ class _SourceCard extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(color: AppPalette.mutedText, height: 1.35),
         ),
-        trailing: IconButton.filledTonal(
-          tooltip: 'Re-index',
-          onPressed: onReindex,
-          style: IconButton.styleFrom(
-            backgroundColor: AppPalette.alabasterGrey,
-            foregroundColor: AppPalette.gunmetal,
-            disabledBackgroundColor: AppPalette.alabasterGrey,
-            disabledForegroundColor:
-                AppPalette.gunmetal.withValues(alpha: 0.45),
-          ),
-          icon: indexing
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.sync),
+        trailing: Wrap(
+          spacing: 8,
+          children: [
+            IconButton.filledTonal(
+              tooltip: 'Re-index',
+              onPressed: onReindex,
+              style: IconButton.styleFrom(
+                backgroundColor: AppPalette.alabasterGrey,
+                foregroundColor: AppPalette.gunmetal,
+                disabledBackgroundColor: AppPalette.alabasterGrey,
+                disabledForegroundColor:
+                    AppPalette.gunmetal.withValues(alpha: 0.45),
+              ),
+              icon: indexing
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.sync),
+            ),
+            IconButton.filledTonal(
+              tooltip: 'Delete index',
+              onPressed: onDelete,
+              style: IconButton.styleFrom(
+                backgroundColor: AppPalette.alabasterGrey,
+                foregroundColor: AppPalette.gunmetal,
+              ),
+              icon: const Icon(Icons.delete_outline),
+            ),
+          ],
         ),
       ),
     );

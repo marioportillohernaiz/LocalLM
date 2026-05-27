@@ -84,13 +84,6 @@ class _HomePageState extends ConsumerState<HomePage> {
   int selectedIndex = 0;
   int chatSessionKey = 0;
 
-  void startNewChat() {
-    setState(() {
-      selectedIndex = 1;
-      chatSessionKey += 1;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final apiClient = ref.watch(apiClientProvider);
@@ -110,7 +103,6 @@ class _HomePageState extends ConsumerState<HomePage> {
         children: [
           _Sidebar(
             selectedIndex: selectedIndex,
-            onNewChat: startNewChat,
             onDestinationSelected: (index) {
               setState(() {
                 selectedIndex = index;
@@ -127,12 +119,10 @@ class _HomePageState extends ConsumerState<HomePage> {
 class _Sidebar extends StatelessWidget {
   const _Sidebar({
     required this.selectedIndex,
-    required this.onNewChat,
     required this.onDestinationSelected,
   });
 
   final int selectedIndex;
-  final VoidCallback onNewChat;
   final ValueChanged<int> onDestinationSelected;
 
   @override
@@ -148,10 +138,6 @@ class _Sidebar extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const _SidebarBrandHeader(),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-              child: _NewChatButton(onPressed: onNewChat),
-            ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -227,33 +213,6 @@ class _SidebarBrandHeader extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _NewChatButton extends StatelessWidget {
-  const _NewChatButton({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return OutlinedButton.icon(
-      onPressed: onPressed,
-      icon: const Icon(Icons.add, size: 20),
-      label: const Align(
-        alignment: Alignment.centerLeft,
-        child: Text('New chat'),
-      ),
-      style: OutlinedButton.styleFrom(
-        foregroundColor: AppPalette.text,
-        alignment: Alignment.centerLeft,
-        backgroundColor: AppPalette.surface,
-        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        side: const BorderSide(color: AppPalette.border),
       ),
     );
   }

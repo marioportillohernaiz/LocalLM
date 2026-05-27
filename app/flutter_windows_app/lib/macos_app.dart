@@ -45,13 +45,6 @@ class _MacosHomePageState extends ConsumerState<MacosHomePage> {
   int selectedIndex = 0;
   int chatSessionKey = 0;
 
-  void startNewChat() {
-    setState(() {
-      selectedIndex = 1;
-      chatSessionKey += 1;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final apiClient = ref.watch(apiClientProvider);
@@ -73,7 +66,6 @@ class _MacosHomePageState extends ConsumerState<MacosHomePage> {
           children: [
             _MacSidebar(
               selectedIndex: selectedIndex,
-              onNewChat: startNewChat,
               onDestinationSelected: (index) {
                 setState(() {
                   selectedIndex = index;
@@ -91,12 +83,10 @@ class _MacosHomePageState extends ConsumerState<MacosHomePage> {
 class _MacSidebar extends StatelessWidget {
   const _MacSidebar({
     required this.selectedIndex,
-    required this.onNewChat,
     required this.onDestinationSelected,
   });
 
   final int selectedIndex;
-  final VoidCallback onNewChat;
   final ValueChanged<int> onDestinationSelected;
 
   @override
@@ -129,29 +119,6 @@ class _MacSidebar extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-            child: CupertinoButton(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              color: AppPalette.gunmetal,
-              borderRadius: BorderRadius.circular(8),
-              onPressed: onNewChat,
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(CupertinoIcons.add, size: 18),
-                  SizedBox(width: 6),
-                  Text(
-                    'New chat',
-                    style: TextStyle(
-                      color: CupertinoColors.white,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
             ),
           ),
           Expanded(

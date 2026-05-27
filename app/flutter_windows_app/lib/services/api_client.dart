@@ -56,6 +56,11 @@ class ApiClient {
     );
   }
 
+  Future<void> deleteSource(int sourceId) async {
+    final response = await http.delete(Uri.parse('$baseUrl/sources/$sourceId'));
+    _throwIfNotOk(response, 'Failed to delete source index');
+  }
+
   Future<ChatResponse> ask({
     required String question,
     required List<String> labels,

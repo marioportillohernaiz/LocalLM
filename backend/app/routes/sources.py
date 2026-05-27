@@ -9,7 +9,7 @@ from app.schemas import (
     IndexSourceResponse,
     SourceResponse,
 )
-from app.services.source_service import create_source, index_source
+from app.services.source_service import create_source, delete_source_index, index_source
 
 
 router = APIRouter(prefix="/sources", tags=["sources"])
@@ -40,6 +40,18 @@ def index_source_route(
     try:
         embedding_model = payload.embedding_model if payload is not None else None
         return index_source(db, source_id, embedding_model=embedding_model)
+    except ValueError as error:
+        status_code = 404 if "not found" in str(error).lower() else 400
+        raise HTTPException(status_code=status_code, detail=str(error)) from error
+
+
+@router.delete("/{source_id}", status_code=204)
+def delete_source_route(
+    source_id: int,
+    db: Session = Depends(get_db),
+) -> None:
+    try:
+        delete_source_index(db, source_id)
     except ValueError as error:
         status_code = 404 if "not found" in str(error).lower() else 400
         raise HTTPException(status_code=status_code, detail=str(error)) from error

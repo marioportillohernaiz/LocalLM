@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import '../models/chat_response.dart';
 import '../models/source.dart';
 import '../theme/app_palette.dart';
+import '../widgets/local_lm_logo.dart';
 
 class MacPage extends StatelessWidget {
   const MacPage({
@@ -514,6 +515,170 @@ class MacSourcesUsed extends StatelessWidget {
                 ],
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class MacConversationPreview extends StatelessWidget {
+  const MacConversationPreview({
+    super.key,
+    required this.question,
+    required this.answer,
+    required this.sources,
+  });
+
+  final String question;
+  final String answer;
+  final List<ChatSource> sources;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(48, 32, 48, 48),
+      children: [
+        Align(
+          alignment: Alignment.centerRight,
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 360),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+            decoration: BoxDecoration(
+              color: AppPalette.dustGrey,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Text(
+              question,
+              style: const TextStyle(fontSize: 15, color: AppPalette.text),
+            ),
+          ),
+        ),
+        const SizedBox(height: 40),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(
+              width: 48,
+              child: LocalLmLogo(size: 40),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Text(
+                answer,
+                style: const TextStyle(
+                  color: AppPalette.text,
+                  fontSize: 16,
+                  height: 1.45,
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (sources.isNotEmpty) ...[
+          const SizedBox(height: 36),
+          const Padding(
+            padding: EdgeInsets.only(left: 68),
+            child: Text(
+              'Sources',
+              style: TextStyle(
+                color: AppPalette.text,
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Padding(
+            padding: const EdgeInsets.only(left: 78),
+            child: MacSourceReferenceList(sources: sources),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class MacSourceReferenceList extends StatelessWidget {
+  const MacSourceReferenceList({super.key, required this.sources});
+
+  final List<ChatSource> sources;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        for (final source in sources) ...[
+          _MacSourceReferenceCard(source: source),
+          if (source != sources.last) const SizedBox(height: 14),
+        ],
+      ],
+    );
+  }
+}
+
+class _MacSourceReferenceCard extends StatelessWidget {
+  const _MacSourceReferenceCard({required this.source});
+
+  final ChatSource source;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+      decoration: BoxDecoration(
+        color: AppPalette.panel,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppPalette.border),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: AppPalette.dustGrey,
+              borderRadius: BorderRadius.circular(9),
+            ),
+            child: const Icon(
+              CupertinoIcons.doc_text,
+              color: AppPalette.gunmetal,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  source.fileName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppPalette.text,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  source.filePath,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppPalette.mutedText,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          const Icon(
+            CupertinoIcons.chevron_down,
+            color: AppPalette.gunmetal,
+            size: 18,
           ),
         ],
       ),

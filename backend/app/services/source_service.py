@@ -134,6 +134,20 @@ def index_source(
     }
 
 
+def delete_source_index(db: Session, source_id: int) -> None:
+    source = db.query(Source).filter(Source.id == source_id).first()
+
+    if source is None:
+        raise ValueError("Source not found")
+
+    documents = db.query(Document).filter(Document.source_id == source.id).all()
+    for document in documents:
+        delete_document_chunks(document.id)
+
+    db.delete(source)
+    db.commit()
+
+
 def _delete_previous_documents(db: Session, source_id: int, file_path: str) -> None:
     previous_documents = (
         db.query(Document)

@@ -6,6 +6,7 @@ import 'features/history/history_macos_page.dart';
 import 'features/settings/settings_macos_page.dart';
 import 'features/sources/sources_macos_page.dart';
 import 'services/api_providers.dart';
+import 'theme/app_palette.dart';
 import 'widgets/local_lm_logo.dart';
 
 class LocalLMMacosApp extends StatelessWidget {
@@ -18,11 +19,11 @@ class LocalLMMacosApp extends StatelessWidget {
       title: 'LocalLM',
       theme: CupertinoThemeData(
         brightness: Brightness.light,
-        primaryColor: CupertinoColors.systemBlue,
-        scaffoldBackgroundColor: CupertinoColors.systemGroupedBackground,
+        primaryColor: AppPalette.gunmetal,
+        scaffoldBackgroundColor: AppPalette.surface,
         textTheme: CupertinoTextThemeData(
           textStyle: TextStyle(
-            color: CupertinoColors.label,
+            color: AppPalette.text,
             fontSize: 15,
             letterSpacing: 0,
           ),
@@ -65,7 +66,7 @@ class _MacosHomePageState extends ConsumerState<MacosHomePage> {
     ];
 
     return CupertinoPageScaffold(
-      backgroundColor: CupertinoColors.systemGroupedBackground,
+      backgroundColor: AppPalette.surface,
       child: SafeArea(
         bottom: false,
         child: Row(
@@ -103,9 +104,9 @@ class _MacSidebar extends StatelessWidget {
     return Container(
       width: 212,
       decoration: const BoxDecoration(
-        color: CupertinoColors.secondarySystemGroupedBackground,
+        color: AppPalette.panel,
         border: Border(
-          right: BorderSide(color: CupertinoColors.separator, width: 0),
+          right: BorderSide(color: AppPalette.border),
         ),
       ),
       child: Column(
@@ -134,7 +135,7 @@ class _MacSidebar extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
             child: CupertinoButton(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              color: CupertinoColors.systemBlue,
+              color: AppPalette.gunmetal,
               borderRadius: BorderRadius.circular(8),
               onPressed: onNewChat,
               child: const Row(
@@ -211,9 +212,7 @@ class _MacSidebarItem extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
           decoration: BoxDecoration(
-            color: selected
-                ? CupertinoColors.systemBlue.withValues(alpha: 0.14)
-                : CupertinoColors.transparent,
+            color: selected ? AppPalette.dustGrey : CupertinoColors.transparent,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
@@ -221,18 +220,14 @@ class _MacSidebarItem extends StatelessWidget {
               Icon(
                 icon,
                 size: 18,
-                color: selected
-                    ? CupertinoColors.systemBlue
-                    : CupertinoColors.secondaryLabel,
+                color: AppPalette.gunmetal,
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   label,
                   style: TextStyle(
-                    color: selected
-                        ? CupertinoColors.systemBlue
-                        : CupertinoColors.label,
+                    color: AppPalette.text,
                     fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                   ),
                 ),

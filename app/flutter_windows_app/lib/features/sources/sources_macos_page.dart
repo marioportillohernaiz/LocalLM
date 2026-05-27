@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 
 import '../../models/source.dart';
 import '../../services/api_client.dart';
+import '../../theme/app_palette.dart';
 import '../macos_feature_widgets.dart';
 
 class MacSourcesPage extends StatefulWidget {
@@ -174,6 +175,7 @@ class _MacSourcesPageState extends State<MacSourcesPage> {
                 ? const MacLoading(label: 'Loading sources')
                 : sources.isEmpty
                     ? const MacEmptyState(
+                        icon: CupertinoIcons.folder,
                         title: 'No sources yet',
                         message: 'Add a folder or file to start indexing.',
                       )
@@ -188,7 +190,7 @@ class _MacSourcesPageState extends State<MacSourcesPage> {
                               children: [
                                 const Icon(
                                   CupertinoIcons.folder,
-                                  color: CupertinoColors.systemBlue,
+                                  color: AppPalette.gunmetal,
                                 ),
                                 const SizedBox(width: 10),
                                 Expanded(

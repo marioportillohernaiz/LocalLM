@@ -52,6 +52,12 @@ lib/
 - macOS navigation shell
 - imports `*_macos_page.dart` feature pages
 
+Platform-specific widgets do not mean platform-specific product behavior. The
+Windows and macOS screens should expose the same release workflows unless there
+is an explicit product decision to diverge. For example, Settings must show the
+same curated LocalLM model catalog on both platforms, even though Windows renders
+it with Material widgets and macOS renders it with Cupertino widgets.
+
 Each feature folder contains platform-specific pages side by side:
 
 ```text
@@ -106,6 +112,40 @@ Windows feature pages own Material presentation for the workflow. They may use `
 macOS feature pages own Cupertino presentation for the workflow. They may use `CupertinoPageScaffold`, `CupertinoButton`, `CupertinoTextField`, `CupertinoAlertDialog`, and the macOS visual theme.
 
 Neither platform feature page should own backend behavior. Both should call shared API client methods and consume shared model classes.
+
+## Visual Consistency Rules
+
+The app should look like LocalLM on every desktop platform, not like a default
+framework demo. Platform widgets provide interaction conventions, but the product
+palette and information hierarchy stay shared:
+
+- Windows uses Material widgets with `AppPalette`.
+- macOS uses Cupertino widgets with `AppPalette`.
+- Avoid default Cupertino blue for app chrome, navigation selection, primary
+  actions, and repeated feature controls unless a specific control requires the
+  native accent color.
+- Icons must be real platform icons, not missing-font placeholders. Any
+  `CupertinoIcons` usage requires the `cupertino_icons` dependency in
+  `pubspec.yaml`.
+- Empty states should use feature-specific icons: folders for Sources, chat for
+  Chat, and clock/history for History.
+- The macOS layout may use Cupertino spacing and controls, but it should preserve
+  the same workflow structure as Windows: sidebar navigation, page header,
+  primary action area, list/detail content, and empty/error/loading states.
+
+## Release Workflow Parity
+
+Release-only or platform-only controls should be treated as product changes, not
+UI implementation details.
+
+- Settings must use the shared model catalog endpoint and show the preset Small,
+  Medium, and Large model tiers.
+- Settings must not expose a backend URL editor in release UI. The packaged app
+  is responsible for launching the local backend.
+- Model download and installed-state behavior belongs in shared API/client
+  methods; platform pages only choose the visual controls.
+- If one platform adds or removes a user-facing workflow, review the matching
+  platform page before release.
 
 ## Shared Code Rules
 

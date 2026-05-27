@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 
 import '../models/chat_response.dart';
 import '../models/source.dart';
+import '../theme/app_palette.dart';
 
 class MacPage extends StatelessWidget {
   const MacPage({
@@ -23,9 +24,9 @@ class MacPage extends StatelessWidget {
           height: 58,
           padding: const EdgeInsets.symmetric(horizontal: 24),
           decoration: const BoxDecoration(
-            color: CupertinoColors.systemGroupedBackground,
+            color: AppPalette.surface,
             border: Border(
-              bottom: BorderSide(color: CupertinoColors.separator, width: 0),
+              bottom: BorderSide(color: AppPalette.border),
             ),
           ),
           child: Row(
@@ -65,9 +66,9 @@ class MacCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: CupertinoColors.secondarySystemGroupedBackground,
+        color: AppPalette.panel,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: CupertinoColors.separator, width: 0),
+        border: Border.all(color: AppPalette.border),
       ),
       child: child,
     );
@@ -123,7 +124,7 @@ class MacPrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoButton(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-      color: CupertinoColors.systemBlue,
+      color: AppPalette.gunmetal,
       disabledColor: CupertinoColors.systemGrey4,
       borderRadius: BorderRadius.circular(8),
       onPressed: onPressed,
@@ -157,7 +158,7 @@ class MacSecondaryButton extends StatelessWidget {
         style: TextStyle(
           color: destructive
               ? CupertinoColors.destructiveRed
-              : CupertinoColors.systemBlue,
+              : AppPalette.gunmetal,
         ),
       ),
     );
@@ -218,15 +219,14 @@ class MacPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: selected
-            ? CupertinoColors.systemBlue
-            : CupertinoColors.tertiarySystemFill,
+        color:
+            selected ? AppPalette.gunmetal : CupertinoColors.tertiarySystemFill,
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: selected ? CupertinoColors.white : CupertinoColors.label,
+          color: selected ? CupertinoColors.white : AppPalette.text,
           fontSize: 13,
           fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
         ),
@@ -316,10 +316,12 @@ class MacEmptyState extends StatelessWidget {
     super.key,
     required this.title,
     required this.message,
+    this.icon = CupertinoIcons.doc_text_search,
   });
 
   final String title;
   final String message;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
@@ -330,10 +332,10 @@ class MacEmptyState extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                CupertinoIcons.doc_text_search,
+              Icon(
+                icon,
                 size: 34,
-                color: CupertinoColors.secondaryLabel,
+                color: AppPalette.gunmetal,
               ),
               const SizedBox(height: 10),
               Text(
@@ -384,9 +386,9 @@ class MacError extends StatelessWidget {
 
 BoxDecoration macFieldDecoration() {
   return BoxDecoration(
-    color: CupertinoColors.secondarySystemGroupedBackground,
+    color: AppPalette.panel,
     borderRadius: BorderRadius.circular(8),
-    border: Border.all(color: CupertinoColors.separator, width: 0),
+    border: Border.all(color: AppPalette.border),
   );
 }
 

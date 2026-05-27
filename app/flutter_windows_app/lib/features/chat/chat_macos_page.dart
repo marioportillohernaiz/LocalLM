@@ -147,6 +147,7 @@ class _MacChatPageState extends State<MacChatPage> {
           Expanded(
             child: response == null
                 ? const MacEmptyState(
+                    icon: CupertinoIcons.chat_bubble_2,
                     title: 'No answer yet',
                     message: 'Choose labels and ask a question.',
                   )

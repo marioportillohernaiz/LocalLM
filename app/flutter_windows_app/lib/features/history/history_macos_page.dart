@@ -75,6 +75,7 @@ class _MacHistoryPageState extends State<MacHistoryPage> {
                 ? const MacLoading(label: 'Loading history')
                 : history.isEmpty
                     ? const MacEmptyState(
+                        icon: CupertinoIcons.clock,
                         title: 'No history yet',
                         message: 'Ask questions to build your history.',
                       )

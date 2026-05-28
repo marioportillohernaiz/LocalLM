@@ -62,13 +62,18 @@ Add labelled folders or individual files, then index or re-index them locally.
 Select one or more source labels and ask questions against the indexed content.
 
 ![LocalLM Chat screen](docs/screenshots/02-chat.png)
-![LocalLM Chat screen](docs/screenshots/021-chat.png)
 
 ### 3. Review History
 
 Browse previous questions, answers, labels, and cited source material.
 
 ![LocalLM History screen](docs/screenshots/03-history.png)
+
+### 4. Download models
+
+Download your own choice of models, from fast & low memory to high quality and heavier.
+
+![LocalLM Settings screen](docs/screenshots/04-settings.png)
 
 ## Features
 

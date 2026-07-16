@@ -2,6 +2,7 @@
 #include <flutter/flutter_view_controller.h>
 #include <windows.h>
 
+#include "backend_launcher.h"
 #include "flutter_window.h"
 #include "utils.h"
 
@@ -12,6 +13,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   if (!::AttachConsole(ATTACH_PARENT_PROCESS) && ::IsDebuggerPresent()) {
     CreateAndAttachConsole();
   }
+
+  StartBackendIfNeeded();
 
   // Initialize COM, so that it is available for use in the library and/or
   // plugins.
@@ -37,6 +40,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
     ::TranslateMessage(&msg);
     ::DispatchMessage(&msg);
   }
+
+  StopBackendIfStarted();
 
   ::CoUninitialize();
   return EXIT_SUCCESS;

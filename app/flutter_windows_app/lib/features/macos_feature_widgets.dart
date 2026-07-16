@@ -10,11 +10,13 @@ class MacPage extends StatelessWidget {
     super.key,
     required this.title,
     required this.child,
+    this.subtitle,
     this.trailing,
   });
 
   final String title;
   final Widget child;
+  final String? subtitle;
   final Widget? trailing;
 
   @override
@@ -22,8 +24,8 @@ class MacPage extends StatelessWidget {
     return Column(
       children: [
         Container(
-          height: 58,
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          constraints: const BoxConstraints(minHeight: 58),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
           decoration: const BoxDecoration(
             color: AppPalette.surface,
             border: Border(
@@ -33,13 +35,29 @@ class MacPage extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0,
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle!,
+                        style: const TextStyle(
+                          color: AppPalette.mutedText,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
               if (trailing != null) trailing!,
@@ -722,33 +740,40 @@ class MacEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 360),
-        child: MacCard(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: 34,
-                color: AppPalette.gunmetal,
+        constraints: const BoxConstraints(maxWidth: 460),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 96,
+              height: 96,
+              decoration: BoxDecoration(
+                color: AppPalette.dustGrey,
+                borderRadius: BorderRadius.circular(26),
               ),
-              const SizedBox(height: 10),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
+              child: Icon(icon, size: 46, color: AppPalette.gunmetal),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0,
               ),
-              const SizedBox(height: 6),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: CupertinoColors.secondaryLabel),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AppPalette.mutedText,
+                fontSize: 14,
+                height: 1.45,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

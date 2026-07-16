@@ -96,11 +96,7 @@ class _MacHistoryPageState extends State<MacHistoryPage> {
                 child: loading
                     ? const MacLoading(label: 'Loading history')
                     : history.isEmpty
-                        ? const MacEmptyState(
-                            icon: CupertinoIcons.clock,
-                            title: 'No history yet',
-                            message: 'Ask questions to build your history.',
-                          )
+                        ? const SizedBox.shrink()
                         : ListView.separated(
                             padding: const EdgeInsets.all(12),
                             itemCount: history.length,
@@ -126,40 +122,18 @@ class _MacHistoryPageState extends State<MacHistoryPage> {
         ),
         Container(width: 1, color: AppPalette.border),
         Expanded(
-          child: Column(
-            children: [
-              Container(
-                height: 58,
-                width: double.infinity,
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: AppPalette.border)),
+          child: selectedItem == null
+              ? const MacEmptyState(
+                  icon: CupertinoIcons.clock,
+                  title: 'Select a conversation',
+                  message:
+                      'Choose a saved question to review its answer and sources.',
+                )
+              : MacConversationPreview(
+                  question: selectedItem.question,
+                  answer: selectedItem.answer,
+                  sources: selectedItem.sources,
                 ),
-                child: const Text(
-                  'Conversation Preview',
-                  style: TextStyle(
-                    color: AppPalette.text,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: selectedItem == null
-                    ? const MacEmptyState(
-                        icon: CupertinoIcons.clock,
-                        title: 'No conversation selected',
-                        message: 'Select a previous conversation.',
-                      )
-                    : MacConversationPreview(
-                        question: selectedItem.question,
-                        answer: selectedItem.answer,
-                        sources: selectedItem.sources,
-                      ),
-              ),
-            ],
-          ),
         ),
       ],
     );

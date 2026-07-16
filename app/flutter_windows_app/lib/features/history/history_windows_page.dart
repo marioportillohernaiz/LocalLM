@@ -150,7 +150,7 @@ class _HistoryWindowsPageState extends State<HistoryWindowsPage> {
                     child: loading && items.isEmpty
                         ? const Center(child: CircularProgressIndicator())
                         : items.isEmpty
-                            ? const _EmptyHistory()
+                            ? const SizedBox.shrink()
                             : ListView.separated(
                                 padding: const EdgeInsets.all(12),
                                 itemCount: items.length,
@@ -410,19 +410,6 @@ class _SelectHistoryItem extends StatelessWidget {
       icon: EmptyStateIcon(icon: Icons.history_outlined),
       title: 'Select a conversation',
       subtitle: 'Choose a saved question to review its answer and sources.',
-    );
-  }
-}
-
-class _EmptyHistory extends StatelessWidget {
-  const _EmptyHistory();
-
-  @override
-  Widget build(BuildContext context) {
-    return const EmptyState(
-      icon: EmptyStateIcon(icon: Icons.chat_bubble_outline),
-      title: 'No chat history',
-      subtitle: 'Ask a question to save your first conversation.',
     );
   }
 }

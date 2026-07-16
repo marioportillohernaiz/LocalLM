@@ -90,9 +90,11 @@ class _MacSettingsPageState extends ConsumerState<MacSettingsPage> {
 
     return MacPage(
       title: 'Settings',
-      trailing: MacSecondaryButton(
-        label: 'Refresh models',
+      subtitle: 'Install local models for chat answers and source indexing.',
+      trailing: CupertinoButton(
+        padding: EdgeInsets.zero,
         onPressed: loading ? null : loadModels,
+        child: const Icon(CupertinoIcons.refresh, color: AppPalette.text),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

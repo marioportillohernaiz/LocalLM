@@ -23,23 +23,15 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Ensure Visual Studio C++ CMake tools are installed
-        shell: pwsh
-        run: |
-          $installerPath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
-          $vswherePath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-          $vsPath = & $vswherePath -latest -products * -property installationPath
-          & $installerPath modify --installPath "$vsPath" `
-            --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
-            --add Microsoft.VisualStudio.Component.VC.CMake.Project `
-            --quiet --norestart --wait
-
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
           flutter-version: "3.35.7"
           cache: true
+
+      - name: Flutter doctor (Windows toolchain diagnostics)
+        run: flutter doctor -v
 
       - name: Set up Python
         uses: actions/setup-python@v5
